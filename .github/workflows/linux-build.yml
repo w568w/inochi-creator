@@ -1,0 +1,50 @@
+name: Linux build
+
+on:
+  push:
+    branches: [v0_8]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dlang-community/setup-dlang@v1.4.0
+        with:
+          compiler: ldc-latest
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gettext libsdl2-dev libfreetype6-dev
+
+      - name: Check ImGui ABI
+        working-directory: vendor/i2d-imgui
+        run: bash tests/abi.sh
+
+      - name: Build release
+        run: dub build --compiler=ldc2 --config=barebones --build=release
+
+      - name: Package
+        run: |
+          bash gentl.sh
+          mkdir -p out/i18n out/licenses build/package
+          mv out/*.mo out/i18n/
+          cp vendor/i2d-imgui/LICENSE out/licenses/i2d-imgui.txt
+          cp vendor/i2d-imgui/deps/cimgui/LICENSE out/licenses/cimgui.txt
+          cp vendor/i2d-imgui/deps/cimgui/imgui/LICENSE.txt out/licenses/imgui.txt
+          tar -czf build/package/inochi-creator-linux-x86_64.tar.gz -C out .
+          cd build/package
+          sha256sum inochi-creator-linux-x86_64.tar.gz > SHA256SUMS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: inochi-creator-linux-x86_64
+          path: build/package/*
+          compression-level: 0
+          if-no-files-found: error

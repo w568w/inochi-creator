@@ -72,6 +72,10 @@ cd out
 - Dlang, either dmd or ldc (ldc recommended)
 
 ### Linux
+Linux packages are available from the [Linux build workflow](https://github.com/w568w/inochi-creator/actions/workflows/linux-build.yml).
+Download `inochi-creator-linux-x86_64` from a successful run's artifacts.
+The package includes the release executable, translations and licenses.
+
 #### Dependencies
 - The equivalent of build-essential on Ubuntu, on centos 7, this was `sudo yum groupinstall 'Development Tools'`, this should get you a working C++ toolchain.
 - Dlang, either dmd or ldc (ldc recommended)

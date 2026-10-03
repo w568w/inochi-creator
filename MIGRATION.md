@@ -76,6 +76,10 @@ Ordinary `dub test` generates a second main function that conflicts with
 and the D runtime's test mode without changing it.
 
 The Linux PR workflow performs these checks and a barebones release build.
+The Linux build workflow runs on pushes to `v0_8` and manual dispatches. It
+uploads `inochi-creator-linux-x86_64`, containing a tar.gz package and SHA-256
+checksum. Packages are built on Ubuntu 24.04 with SDL2 and FreeType runtime
+dependencies.
 It has not been executed on GitHub during local preparation. The inherited
 release, store and packaging workflows require a separate review before
 enabling them for fork releases.
