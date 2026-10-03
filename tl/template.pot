@@ -1648,7 +1648,7 @@ msgid "Edge Tool"
 msgstr ""
 
 #: source/creator/viewport/common/mesheditor/tools/grid.d:240
-msgid "Drag to define 2x2 mesh"
+msgid "Drag to define grid mesh"
 msgstr ""
 
 #: source/creator/viewport/common/mesheditor/tools/grid.d:241

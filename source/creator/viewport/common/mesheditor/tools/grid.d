@@ -26,7 +26,8 @@ import std.algorithm.sorting;
 
 class GridTool : NodeSelect {
     GridActionID currentAction;
-    int numCut = 3;
+    int xSegments = 2;
+    int ySegments = 2;
     vec2 dragOrigin;
     vec2 dragEnd;
     int dragTargetXIndex = 0;
@@ -47,6 +48,17 @@ class GridTool : NodeSelect {
     }
 
     static float selectRadius = 16f;
+
+    private float[][] gridAxes() {
+        vec2 lower = vec2(min(dragOrigin.x, dragEnd.x), min(dragOrigin.y, dragEnd.y));
+        vec2 upper = vec2(max(dragOrigin.x, dragEnd.x), max(dragOrigin.y, dragEnd.y));
+        float[][] axes = [[], []];
+        foreach (i; 0..ySegments + 1)
+            axes[0] ~= lower.y + (upper.y - lower.y) * i / ySegments;
+        foreach (i; 0..xSegments + 1)
+            axes[1] ~= lower.x + (upper.x - lower.x) * i / xSegments;
+        return axes;
+    }
 
     bool isOnGrid(IncMesh mesh, int axis, vec2 mousePos, float threshold, out float value) {
         if (mesh.axes.length != 2)
@@ -153,22 +165,13 @@ class GridTool : NodeSelect {
             return true;
         } else if (currentAction == GridActionID.Create) {
             dragEnd = mousePos;
-            vec4 bounds = vec4(min(dragOrigin.x, dragEnd.x), min(dragOrigin.y, dragEnd.y),
-                               max(dragOrigin.x, dragEnd.x), max(dragOrigin.y, dragEnd.y));
-            float width  = bounds.z - bounds.x;
-            float height = bounds.w - bounds.y;
-
             auto implDrawable = cast(IncMeshEditorOneDrawable)(impl);
             assert(implDrawable !is null);
 
             auto mesh = implDrawable.getMesh();
             MeshData meshData;
             
-            meshData.gridAxes = [[], []];
-            for (int i = 0; i < numCut; i ++) {
-                meshData.gridAxes[0] ~= bounds.y + height * i / (numCut - 1);
-                meshData.gridAxes[1] ~= bounds.x + width  * i / (numCut - 1);
-            }
+            meshData.gridAxes = gridAxes();
             meshData.regenerateGrid();
             mesh.copyFromMeshData(meshData);
             impl.refreshMesh();
@@ -237,7 +240,7 @@ class GridTool : NodeSelect {
 
         if (igIsMouseClicked(ImGuiMouseButton.Left)) impl.maybeSelectOne = ulong(-1);
 
-        incStatusTooltip(_("Drag to define 2x2 mesh"), _("Left Mouse"));
+        incStatusTooltip(_("Drag to define grid mesh"), _("Left Mouse"));
         incStatusTooltip(_("Add/remove key points to axes"), _("Left Mouse"));
         incStatusTooltip(_("Change key point position in the axis"), _("Left Mouse"));
 
@@ -335,17 +338,11 @@ class GridTool : NodeSelect {
             vec3[] lines;
             vec4 color = vec4(0.2, 0.9, 0.9, 1);
 
-            vec4 bounds = vec4(min(dragOrigin.x, dragEnd.x), min(dragOrigin.y, dragEnd.y),
-                               max(dragOrigin.x, dragEnd.x), max(dragOrigin.y, dragEnd.y));
-            float width  = bounds.z - bounds.x;
-            float height = bounds.w - bounds.y;
-            
-            for (int i;  i < numCut; i ++) {
-                float offy = bounds.y + height * i / (numCut - 1);
-                float offx = bounds.x + width  * i / (numCut - 1);
-                lines ~= [vec3(bounds.x, offy, 0), vec3(bounds.z, offy, 0)];
-                lines ~= [vec3(offx, bounds.y, 0), vec3(offx, bounds.w, 0)];
-            }
+            auto axes = gridAxes();
+            foreach (y; axes[0])
+                lines ~= [vec3(axes[1][0], y, 0), vec3(axes[1][$-1], y, 0)];
+            foreach (x; axes[1])
+                lines ~= [vec3(x, axes[0][0], 0), vec3(x, axes[0][$-1], 0)];
             inDbgSetBuffer(lines);
             inDbgDrawLines(color, mat4.identity());
 
@@ -358,6 +355,16 @@ class GridTool : NodeSelect {
 }
 
 class GridToolInfo : ToolInfoBase!GridTool {
+    private int xSegments = 2;
+    private int ySegments = 2;
+
+    override Tool newTool() {
+        auto tool = new GridTool;
+        tool.xSegments = xSegments;
+        tool.ySegments = ySegments;
+        return tool;
+    }
+
     override
     void setupToolMode(IncMeshEditorOne e, VertexToolMode mode) {
         e.setToolMode(mode);
@@ -372,7 +379,97 @@ class GridToolInfo : ToolInfoBase!GridTool {
             return super.viewportTools(deformOnly, toolMode, editors);
         return false;
     }
+
+    override
+    bool displayToolOptions(bool deformOnly, VertexToolMode toolMode, IncMeshEditorOne[Node] editors) {
+        if (deformOnly) return false;
+        import std.string : toStringz;
+
+        igBeginGroup();
+        igPushItemWidth(128);
+        igInputInt(_("X Segments").toStringz, &xSegments, 1, 1);
+        igInputInt(_("Y Segments").toStringz, &ySegments, 1, 1);
+        igPopItemWidth();
+        igEndGroup();
+        xSegments = clamp(xSegments, 1, 20);
+        ySegments = clamp(ySegments, 1, 20);
+        foreach (e; editors) {
+            if (auto tool = cast(GridTool)e.getTool()) {
+                tool.xSegments = xSegments;
+                tool.ySegments = ySegments;
+            }
+        }
+        return false;
+    }
+
     override VertexToolMode mode() { return VertexToolMode.Grid; };
     override string icon() { return "";}
     override string description() { return _("Grid Vertex Tool");}
+}
+
+unittest {
+    auto tool = new GridTool;
+    assert(tool.xSegments == 2 && tool.ySegments == 2);
+    foreach (segments; [vec2i(2, 2), vec2i(3, 3), vec2i(3, 5), vec2i(1, 1), vec2i(20, 20)]) {
+        tool.xSegments = segments.x;
+        tool.ySegments = segments.y;
+        foreach (reverse; [false, true]) {
+            tool.dragOrigin = reverse ? vec2(167, 113) : vec2(47, 33);
+            tool.dragEnd = reverse ? vec2(47, 33) : vec2(167, 113);
+            MeshData mesh;
+            mesh.gridAxes = tool.gridAxes();
+            assert(mesh.gridAxes[0].length == segments.y + 1);
+            assert(mesh.gridAxes[1].length == segments.x + 1);
+            foreach (axis; 0..2) {
+                auto values = mesh.gridAxes[axis];
+                float spacing = (values[$-1] - values[0]) / (values.length - 1);
+                foreach (i; 1..values.length)
+                    assert(abs(values[i] - values[i-1] - spacing) < 0.0001f);
+            }
+            assert(mesh.gridAxes[0][0] == 33 && mesh.gridAxes[0][$-1] == 113);
+            assert(mesh.gridAxes[1][0] == 47 && mesh.gridAxes[1][$-1] == 167);
+            assert(mesh.regenerateGrid());
+            assert(mesh.vertices.length == (segments.x + 1) * (segments.y + 1));
+            assert(mesh.indices.length == segments.x * segments.y * 6);
+        }
+    }
+
+    auto info = new GridToolInfo;
+    info.xSegments = 3;
+    info.ySegments = 5;
+    auto inherited = cast(GridTool)info.newTool();
+    assert(inherited.xSegments == 3 && inherited.ySegments == 5);
+
+    auto first = new IncMeshEditorOneNode(false);
+    auto second = new IncMeshEditorOneNode(false);
+    first.setToolMode(VertexToolMode.Grid);
+    second.setToolMode(VertexToolMode.Grid);
+    IncMeshEditorOne[Node] editors = [new Node(1001): first, new Node(1002): second];
+    auto ctx = igCreateContext();
+    scope(exit) igDestroyContext(ctx);
+    auto io = igGetIO();
+    io.IniFilename = null;
+    io.DisplaySize = ImVec2(800, 600);
+    io.DeltaTime = 1.0f / 60;
+    io.BackendFlags |= ImGuiBackendFlags.RendererHasTextures;
+    igNewFrame();
+    igBegin("Grid options");
+    info.displayToolOptions(false, VertexToolMode.Grid, editors);
+    igEnd();
+    igEndFrame();
+    foreach (e; editors) {
+        auto selectedTool = cast(GridTool)e.getTool();
+        assert(selectedTool.xSegments == 3 && selectedTool.ySegments == 5);
+    }
+    info.xSegments = -10;
+    info.ySegments = 100;
+    igNewFrame();
+    igBegin("Grid options");
+    info.displayToolOptions(false, VertexToolMode.Grid, editors);
+    igEnd();
+    igEndFrame();
+    foreach (e; editors) {
+        auto selectedTool = cast(GridTool)e.getTool();
+        assert(selectedTool.xSegments == 1 && selectedTool.ySegments == 20);
+    }
 }
