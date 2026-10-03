@@ -1,56 +1,23 @@
 # Inochi Creator
 
-![Image of Inochi Creator](https://user-images.githubusercontent.com/7032834/194462402-74c4a3e0-50ca-4b50-8e8d-164d97371f5a.png)
+Inochi Creator is an editor for rigging and animating layered 2D models in the
+[Inochi2D format](https://github.com/Inochi2D/inochi2d).
+
+![Inochi Creator](https://user-images.githubusercontent.com/7032834/194462402-74c4a3e0-50ca-4b50-8e8d-164d97371f5a.png)
 _Ada model by [ku-ini](https://twitter.com/duckmastah)_
-
-----------------
-
-[![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dclipsey%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/clipsey)
-[![Join the Discord](https://img.shields.io/discord/855173611409506334?label=Community&logo=discord&logoColor=FFFFFF&style=for-the-badge)](https://discord.com/invite/abnxwN6r9v)
-
-Inochi Creator is an open source editor for the [Inochi2D puppet format](https://github.com/Inochi2D/inochi2d).  This application allows you to rig models for use in games or for other real-time applications such as [VTubing](https://en.wikipedia.org/wiki/VTuber). Animation is achieved by morphing, transforming and in other ways distorting layered 2D textures in real-time. These distortions can trick the end user in to perciving 3D depth in the 2D art.
-
-If you are a VTuber wanting to use Inochi2D we highly recommend checking out [Inochi Session](https://github.com/Inochi2D/inochi-session) as well.
-
-&nbsp;
 
 ## Downloads
 
-### Stable Builds
+[Linux x86_64 builds](https://github.com/w568w/inochi-creator/actions/workflows/linux-build.yml)
 
-&nbsp;&nbsp;&nbsp;&nbsp;
-[![Buy on itch.io](https://img.shields.io/github/v/release/Inochi2D/inochi-creator?color=%23fa5c5c&label=itch.io&logo=itch.io&style=for-the-badge)](https://lunafoxgirlvt.itch.io/inochi-creator) [![Wishlist on Steam](https://img.shields.io/github/v/release/Inochi2D/inochi-creator?style=for-the-badge&logo=steam&label=Steam&color=black)](https://store.steampowered.com/app/2108550/Inochi_Creator/)
+Upstream releases: [GitHub](https://github.com/Inochi2D/inochi-creator/releases),
+[itch.io](https://lunafoxgirlvt.itch.io/inochi-creator),
+[Steam](https://store.steampowered.com/app/2108550/Inochi_Creator/).
 
-### Experimental Builds
+## Building on Linux
 
-&nbsp;&nbsp;&nbsp;&nbsp;
-[![Nightly Builds](https://img.shields.io/github/actions/workflow/status/Inochi2D/inochi-creator/release-nightly.yml?label=Nightly&style=for-the-badge)](https://github.com/Inochi2D/inochi-creator/releases/tag/nightly)  
-
-&nbsp;
-
-## For package maintainers
-We do not officially support packages that we don't officially build ourselves, we ask that you build using the barebones configurations, as the branding assets are copyright the Inochi2D Project.  
-You may request permission to use our branding assets in your package by submitting an issue.
-
-Barebones builds are more or less equivalent to official builds with the exception that branding is removed,  
-and that we don't accept support tickets unless a problem can be replicated on an official build.
-
-Links in `source/creator/config.d` should be updated to point to your package's issues list, as we do not accept issues from non-official builds.
-
-&nbsp;
-
-## Building
-The ImGui dependency is a local Dub package at `vendor/i2d-imgui`, with cimgui
-and Dear ImGui included as Git subtrees. A normal clone or source archive
-contains all three; no recursive submodule checkout or `dub add-local` is
-needed. Dub downloads the remaining D dependencies when building.
-
-Building requires a C++ toolchain for the vendored ImGui sources, plus the
-development libraries listed below. Linux is the verified target of this
-fork; the inherited Windows and macOS configurations have not been tested.
-Currently you **have** to _recursively_ clone bindbc-imgui from git and set its version to `0.7.0`, otherwise the build will fail.
-
-On Linux, build the unbranded configuration and run from its output directory:
+Requirements: LDC, Dub, CMake 3.16+, a C++ compiler, and SDL2/FreeType
+development packages.
 
 ```sh
 dub build --compiler=ldc2 --config=barebones --build=release
@@ -58,24 +25,23 @@ cd out
 ./inochi-creator
 ```
 
-### Windows
-#### Dependencies
-- Visual Studio 2022 (With "Desktop development with C++" workflow installed)
-  - In theory, "Build Tools for Visual Studio 2022" should also work, but is untested.
-- CMake (Currently 3.16 or higher is needed.)
-- Dlang, either dmd or ldc (ldc recommended)
+## Development
 
-### Linux
-Linux packages are available from the [Linux build workflow](https://github.com/w568w/inochi-creator/actions/workflows/linux-build.yml).
-Download `inochi-creator-linux-x86_64` from a successful run's artifacts.
+[Dependency maintenance](MIGRATION.md) |
+[Translation guide](TRANSLATING.md) |
+[Contributors](CONTRIBUTORS.md)
 
-#### Dependencies
-- The equivalent of build-essential on Ubuntu, on centos 7, this was `sudo yum groupinstall 'Development Tools'`, this should get you a working C++ toolchain.
-- Dlang, either dmd or ldc (ldc recommended)
-- CMake (Currently 3.16 or higher is needed.)
-- SDL2 (developer package)
-- Freetype (developer package)
-- appimagetool (for building an AppImage)
+## Project Links
+
+[Upstream](https://github.com/Inochi2D/inochi-creator) |
+[Documentation](https://github.com/Inochi2D/inochi-creator/wiki) |
+[Discord](https://discord.com/invite/abnxwN6r9v) |
+[Patreon](https://patreon.com/clipsey)
+
+## License
+
+Source code: [BSD-2-Clause](LICENSE). Redistribution of branding assets requires
+permission from the [Inochi2D Project](https://github.com/Inochi2D/inochi-creator/issues).
 
 ## Special Thanks
 
