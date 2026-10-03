@@ -1,0 +1,30 @@
+/.dub/
+lib/
+build*/
+
+libs/
+out/
+
+# (re)dub garbage
+dub.selections.json
+.ldc2_cache/
+.dub/
+
+#Other Junk
+.vscode/
+imgui.ini
+.DS_Store
+
+*.exp
+*.lib
+
+#Avoid outputs being pushed
+bindbc-imgui
+bindbc-imgui.exe
+bindbc-imgui.dll
+bindbc-imgui-test
+bindbc-imgui-test.exe
+
+#Also on Linux
+libbindbc-imgui.so
+libbindbc-imgui.a
