@@ -28,14 +28,12 @@ protected:
     override
     void onUpdate() {
         igSliderFloat("Zoom", &zoom, 0.1, 10, "%.2f");
-        if (igBeginChild("TextureViewerArea", ImVec2(0, 0), false, ImGuiWindowFlags.HorizontalScrollbar)) {
+        if (igBeginChild("TextureViewerArea", ImVec2(0, 0), ImGuiChildFlags.None, ImGuiWindowFlags.HorizontalScrollbar)) {
             igImage(
-                cast(void*)texture.getTextureId(), 
+                ImTextureRef(null, texture.getTextureId()),
                 ImVec2(texture.width*zoom, texture.height*zoom), 
                 ImVec2(0, 0), 
-                ImVec2(1, 1), 
-                ImVec4(1, 1, 1, 1), 
-                ImVec4(0, 0, 0, 0)
+                ImVec2(1, 1)
             );
         }
         igEndChild();

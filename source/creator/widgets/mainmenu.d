@@ -56,14 +56,14 @@ void incMainMenu() {
         if(igBeginMainMenuBar()) {
                 
             ImVec2 pos;
-            igGetCursorPos(&pos);
+            pos = igGetCursorPos();
             igSetCursorPos(ImVec2(pos.x-(igGetStyle().WindowPadding.x/2), pos.y));
 
             ImVec2 avail;
-            igGetContentRegionAvail(&avail);
+            avail = igGetContentRegionAvail();
             version (InBranding) {
                 igImage(
-                    cast(void*)incGetLogoI2D().getTextureId(), 
+                    ImTextureRef(null, incGetLogoI2D().getTextureId()),
                     ImVec2(avail.y*2, avail.y*2), 
                     ImVec2(0, 0), ImVec2(1, 1), 
                     ImVec4(1, 1, 1, 1), 
@@ -593,6 +593,6 @@ void incMainMenu() {
     // ImGui Debug Stuff
     if (dbgShowStyleEditor) igShowStyleEditor(igGetStyle());
     if (dbgShowDebugger) igShowAboutWindow(&dbgShowDebugger);
-    if (dbgShowStackTool) igShowStackToolWindow();
+    if (dbgShowStackTool) igShowIDStackToolWindow();
     if (dbgShowMetrics) igShowMetricsWindow();
 }

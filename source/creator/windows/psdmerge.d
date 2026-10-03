@@ -256,7 +256,7 @@ private:
                 if (igIsItemHovered()) {
                     igBeginTooltip();
                         ImVec2 tl;
-                        igGetCursorPos(&tl);
+                        tl = igGetCursorPos();
 
                         igItemSize(ImVec2(PreviewSize, PreviewSize));
 
@@ -265,7 +265,7 @@ private:
                         );
 
                         igImage(
-                            cast(void*)layer.layerTexture.getTextureId(), 
+                            ImTextureRef(null, layer.layerTexture.getTextureId()),
                             ImVec2(layer.texturePreviewBounds.z, layer.texturePreviewBounds.w)
                         );
                     igEndTooltip();
@@ -332,7 +332,7 @@ private:
                     else if (widthScale < heightScale) bounds.y = (PreviewSize-bounds.w)/2;
 
                     ImVec2 tl;
-                    igGetCursorPos(&tl);
+                    tl = igGetCursorPos();
 
                     igItemSize(ImVec2(PreviewSize, PreviewSize));
 
@@ -341,7 +341,7 @@ private:
                     );
 
                     igImage(
-                        cast(void*)part.textures[0].getTextureId(), 
+                        ImTextureRef(null, part.textures[0].getTextureId()),
                         ImVec2(bounds.z, bounds.w)
                     );
                 igEndTooltip();

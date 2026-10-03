@@ -16,7 +16,7 @@ import creator.widgets.label : incText;
 import creator.io.autosave;
 import i18n;
 import std.path : stripExtension;
-import bindbc.imgui;
+import i2d.imgui;
 
 class RestoreSaveWindow : Window {
 private:
@@ -40,7 +40,7 @@ protected:
         // TODO: Add ada error icon
 
         float availX = incAvailableSpace().x;
-        if (igBeginChild("RestoreSaveMessage", ImVec2(0, -28), true)) {
+        if (igBeginChild("RestoreSaveMessage", ImVec2(0, -28), ImGuiChildFlags.Borders)) {
             igPushTextWrapPos(availX);
                 incText(_("Inochi Creator closed unexpectedly while editing this file."));
                 incText(_("Restore data from a backup?"));
@@ -48,7 +48,7 @@ protected:
         }
         igEndChild();
 
-        if (igBeginChild("RestoreSaveButtons", ImVec2(0, 0), false, ImGuiWindowFlags.NoScrollbar)) {
+        if (igBeginChild("RestoreSaveButtons", ImVec2(0, 0), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar)) {
             incDummy(ImVec2(-128, 0));
             igSameLine(0, 0);
 

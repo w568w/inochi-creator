@@ -8,7 +8,7 @@ module creator.panels.timeline;
 import creator.panels;
 import i18n;
 import inochi2d;
-import bindbc.imgui;
+import i2d.imgui;
 import creator.widgets;
 import creator;
 import inmath.noise;
@@ -54,7 +54,7 @@ private:
         // BG Color
         auto origBG = igGetStyle().Colors[ImGuiCol.ChildBg];
         igPushStyleColor(ImGuiCol.ChildBg, ImVec4(0, 0, 0, 0.25));
-        if (igBeginChild("HEADERS_ROOT", ImVec2(tlWidth, widgetHeight), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
+        if (igBeginChild("HEADERS_ROOT", ImVec2(tlWidth, widgetHeight), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
 
             // Get scroll
             auto window = igGetCurrentWindow();
@@ -138,7 +138,7 @@ private:
         igSameLine(0, 0);
         igPushStyleVar(ImGuiStyleVar.ItemSpacing, ImVec2(0, 0));
         igPushStyleColor(ImGuiCol.ChildBg, ImVec4(0, 0, 0, 0.033));
-            if (igBeginChild("LANES_ROOT", ImVec2(0, widgetHeight), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
+            if (igBeginChild("LANES_ROOT", ImVec2(0, widgetHeight), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
                 
                 
                 // Set scroll
@@ -231,11 +231,11 @@ protected:
         if (inAnimMode) {
             if (igIsWindowHovered(ImGuiHoveredFlags.ChildWindows)) {
 
-                if ((igGetIO().KeyMods & ImGuiModFlags.Shift) == ImGuiModFlags.Shift) {    
+                if ((igGetIO().KeyMods & ImGuiKey.ImGuiMod_Shift) == ImGuiKey.ImGuiMod_Shift) {
                     float delta = (igGetIO().MouseWheel*1024*zoom)*deltaTime();
                     version(osx) hscroll += delta;
                     else hscroll -= delta;
-                } else if ((igGetIO().KeyMods & ImGuiModFlags.Ctrl) == ImGuiModFlags.Ctrl) {
+                } else if ((igGetIO().KeyMods & ImGuiKey.ImGuiMod_Ctrl) == ImGuiKey.ImGuiMod_Ctrl) {
                     
                     float delta = (igGetIO().MouseWheel*2*zoom)*deltaTime();
                     zoom = clamp(zoom+delta, TIMELINE_MIN_ZOOM, TIMELINE_MAX_ZOOM);

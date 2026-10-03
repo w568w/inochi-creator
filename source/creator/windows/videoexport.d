@@ -153,7 +153,7 @@ protected:
 
         igBeginDisabled(vctx !is null);
             // Contents
-            if (igBeginChild("ExportContent", ImVec2(0, -28), true)) {
+            if (igBeginChild("ExportContent", ImVec2(0, -28), ImGuiChildFlags.Borders)) {
                 incText(_("Export Settings"));
 
                 igSpacing();
@@ -225,7 +225,7 @@ protected:
         igEndDisabled();
 
         // Bottom buttons
-        if (igBeginChild("ExportButtons", ImVec2(0, 0), false, ImGuiWindowFlags.NoScrollbar)) {
+        if (igBeginChild("ExportButtons", ImVec2(0, 0), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar)) {
             igProgressBar(vctx ? vctx.progress() : 0, ImVec2(-68, 24));
             igSameLine(0, 4);
 

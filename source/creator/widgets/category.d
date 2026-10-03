@@ -1,7 +1,7 @@
 module creator.widgets.category;
 import creator.core;
 import creator.widgets;
-import bindbc.imgui;
+import i2d.imgui;
 
 private {
     struct CategoryData {
@@ -124,7 +124,7 @@ bool incBeginCategory(const(char)* title, ImVec4 color, IncCategoryFlags flags =
     data.contentBounds.z = incAvailableSpace().x;
 
     ImVec2 cursor;
-    igGetCursorScreenPos(&cursor);
+    cursor = igGetCursorScreenPos();
 
     // Draw background color
     ImDrawList_AddRectFilled(
@@ -161,8 +161,8 @@ bool incBeginCategory(const(char)* title, ImVec4 color, IncCategoryFlags flags =
     } else {
         bool defaultClosed = (data.flags & IncCategoryFlags.DefaultClosed) == IncCategoryFlags.DefaultClosed;
         data.open = igTreeNodeEx(title, defaultClosed ? 
-            ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowItemOverlap:
-            ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowItemOverlap
+            ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowOverlap:
+            ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowOverlap
         );
     }
 
@@ -171,7 +171,7 @@ bool incBeginCategory(const(char)* title, ImVec4 color, IncCategoryFlags flags =
 
     if (data.open) {
         ImVec2 newCursor;
-        igGetCursorScreenPos(&newCursor);
+        newCursor = igGetCursorScreenPos();
 
         float diffY = newCursor.y-cursor.y;
 

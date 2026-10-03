@@ -40,7 +40,7 @@ void incLabelOver(string text, ImVec2 size = ImVec2(0, 0), bool entireWindow=fal
     ImVec2 origin;
     ImVec2 textSize;
 
-    igGetCursorScreenPos(&origin);
+    origin = igGetCursorScreenPos();
     textSize = incMeasureString(text);
     float xPadding = style.FramePadding.x;
     float yPadding = style.FramePadding.y;
@@ -109,7 +109,7 @@ void incSpacer(ImVec2 size) {
 */
 ImVec2 incAvailableSpace() {
     ImVec2 avail;
-    igGetContentRegionAvail(&avail);
+    avail = igGetContentRegionAvail();
     return avail;
 }
 
@@ -118,6 +118,6 @@ ImVec2 incAvailableSpace() {
 */
 ImVec2 incMeasureString(string text) {
     ImVec2 strLen;
-    igCalcTextSize(&strLen, text.ptr, text.ptr+text.length);
+    strLen = igCalcTextSize(text.ptr, text.ptr+text.length);
     return strLen;
 }

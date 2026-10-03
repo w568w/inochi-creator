@@ -37,13 +37,13 @@ private:
     int tmpUIScale;
 
     ImVec2 uiSize;
-    ImDrawList* shadowDrawList;
 
 protected:
     override
     void onBeginUpdate() {
         flags |= ImGuiWindowFlags.NoResize;
         flags |= ImGuiWindowFlags.NoDecoration;
+        flags |= ImGuiWindowFlags.NoBackground;
 
         ImVec2 wpos = ImVec2(
             igGetMainViewport().Pos.x+(igGetMainViewport().Size.x/2),
@@ -56,22 +56,24 @@ protected:
         origWindowPadding = igGetStyle().WindowPadding;
         igPushStyleVar(ImGuiStyleVar.WindowPadding, ImVec2(0, 0));
         igPushStyleVar(ImGuiStyleVar.WindowRounding, 10);
+        igPushStyleVar(ImGuiStyleVar.WindowBorderSize, 0);
         super.onBeginUpdate();
     }
 
     override
     void onEndUpdate() {
-        igPopStyleVar(2);
+        igPopStyleVar(3);
         super.onEndUpdate();
     }
 
     override
     void onUpdate() {
-        auto window = igGetCurrentWindow();
-        incRenderWindowShadow(
-            shadowDrawList,
-            window.OuterRectClipped
-        );
+        auto pos = igGetWindowPos();
+        auto size = igGetWindowSize();
+        incRenderWindowShadow(pos, size);
+        ImDrawList_AddRectFilled(igGetWindowDrawList(), pos,
+            ImVec2(pos.x + size.x, pos.y + size.y),
+            igGetColorU32(ImGuiCol.WindowBg), igGetStyle().WindowRounding);
         
         // Fix styling for subwindows
         igPushStyleVar(ImGuiStyleVar.WindowPadding, origWindowPadding);
@@ -82,16 +84,16 @@ protected:
         
 
         ImVec2 origin;
-        igGetCursorStartPos(&origin);
+        origin = igGetCursorStartPos();
         if (igBeginChild("##BANNER", ImVec2(0, 200))) {
             igPushStyleColor(ImGuiCol.Text, 0xFFFFFFFF);
                 ImVec2 spos;
-                igGetCursorScreenPos(&spos); 
+                spos = igGetCursorScreenPos();
                 
                 // Background
                 ImDrawList_AddImageRounded(
                     igGetWindowDrawList(), 
-                    cast(void*)banner.getTextureId(),
+                    ImTextureRef(null, banner.getTextureId()),
                     ImVec2(spos.x+1, spos.y+1),
                     ImVec2(spos.x+511, spos.y+199),
                     ImVec2(0, 0),
@@ -104,13 +106,13 @@ protected:
                 //Logo
                 igSetCursorPos(ImVec2(0, 0));
                 version(InBranding) {
-                    igImage(cast(void*)bannerLogo.getTextureId(), ImVec2(bannerLogo.width/4, bannerLogo.height/4));
+                    igImage(ImTextureRef(null, bannerLogo.getTextureId()), ImVec2(bannerLogo.width/4, bannerLogo.height/4));
                 } else {
                     igSetCursorPosY(origin.y+12);
                     igSetCursorPosX(origin.x+12);
-                    igSetWindowFontScale(2);
+                    igPushFont(null, igGetStyle().FontSizeBase * 2);
                         incTextBordered("Inochi Creator");
-                    igSetWindowFontScale(1);
+                    igPopFont();
                     igSetCursorPosX(origin.x+12);
                     incTextBordered(_("Unsupported"));
                 }
@@ -139,7 +141,7 @@ protected:
         igEndChild();
         
         igIndent();
-        if (igBeginChild("##CONFIG_AREA", ImVec2(-4, 0), false, ImGuiWindowFlags.NoScrollbar)) {
+        if (igBeginChild("##CONFIG_AREA", ImVec2(-4, 0), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar)) {
             ImVec2 avail = incAvailableSpace();
             igPushTextWrapPos(avail.x);
             switch(step) {
@@ -185,7 +187,7 @@ protected:
 
                                     // macOS follows Retina scaling, skip showing this
                                 } else {
-                                    if (igInputInt(__("UI Scale"), &tmpUIScale, 25, 50, ImGuiInputTextFlags.EnterReturnsTrue)) {
+                                    if (igInputInt(__("UI Scale"), &tmpUIScale, 25, 50)) {
                                         tmpUIScale = clamp(tmpUIScale, 100, 200);
                                         incSetUIScale(cast(float)tmpUIScale/100.0);
                                     }
@@ -221,7 +223,7 @@ protected:
                     incDummy(ImVec2(0, 4));
 
                     // Left hand side
-                    if (igBeginChild("##LHS", ImVec2((avail.x-8)/2, 0), false, ImGuiWindowFlags.NoScrollbar)) {
+                    if (igBeginChild("##LHS", ImVec2((avail.x-8)/2, 0), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar)) {
                         incTextShadowed(_("Create Project"));
                         incDummy(ImVec2(0, 2));
                         igIndent();
@@ -283,7 +285,7 @@ protected:
                     igSameLine(0, 4);
 
                     // Right hand side
-                    if (igBeginChild("##RHS", ImVec2((avail.x-8)/2, 0), false, ImGuiWindowFlags.NoScrollbar)) {
+                    if (igBeginChild("##RHS", ImVec2((avail.x-8)/2, 0), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar)) {
                         incTextShadowed(_("On the Web"));
                         incDummy(ImVec2(0, 2));
                         igIndent();
@@ -340,7 +342,6 @@ protected:
     override
     void onClose() {
         if (step > 0) incSettingsSet!bool("hasDoneQuickSetup", true);
-        incDestroyWindowDrawList(shadowDrawList);
     }
 
 public:
@@ -366,6 +367,5 @@ public:
             384
         );
 
-        shadowDrawList = incCreateWindowDrawList();
     }
 }

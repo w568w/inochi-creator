@@ -193,7 +193,7 @@ private:
         else if (widthScale < heightScale) bounds.y = (previewSize-bounds.w)/2;
 
         ImVec2 tl;
-        igGetCursorPos(&tl);
+        tl = igGetCursorPos();
 
         igItemSize(ImVec2(PreviewSize, PreviewSize));
 
@@ -201,9 +201,9 @@ private:
             ImVec2(tl.x+centerPos.x-previewSize/2+bounds.x, tl.y+centerPos.y-previewSize/2+bounds.y)
         );
 
-        igImage(
-            cast(void*)part.textures[0].getTextureId(), 
-            ImVec2(bounds.z, bounds.w), uv0, uv1, tintColor
+        igImageWithBg(
+            ImTextureRef(null, part.textures[0].getTextureId()),
+            ImVec2(bounds.z, bounds.w), uv0, uv1, ImVec4(0, 0, 0, 0), tintColor
         );
         return bounds;
 
@@ -263,11 +263,11 @@ private:
             igTableNextRow();
             igTableNextColumn();
             igPushStyleColor(ImGuiCol.FrameBg, ImVec4(0.5, 0.5, 0.5, 0));
+                igSetNextItemAllowOverlap();
                 igSelectable("##%s".format(pair.parts[0].cName).toStringz, active == &pair, ImGuiSelectableFlags.SpanAllColumns, ImVec2(0, 16));
                 if (igIsItemClicked()) {
                     active = &pair;
                 }
-                igSetItemAllowOverlap();
             igPopStyleColor();
             igSameLine();
             incText(incTypeIdToIcon(pair.parts[0].typeId)~pair.parts[0].name);
@@ -345,11 +345,11 @@ private:
             
             igPushStyleVar(ImGuiStyleVar.FrameRounding, 0);
             igPushStyleVar(ImGuiStyleVar.FrameBorderSize, 0);
-                igSetWindowFontScale(0.55);
+                igPushFont(null, igGetStyle().FontSizeBase * 0.55);
                     if (igButton("", ImVec2(16, 16))) {
                         deleted = cast(int)i;
                     }
-                igSetWindowFontScale(1);
+                igPopFont();
             igPopStyleVar(2);
             igPopID();
             igPopID();
@@ -390,7 +390,7 @@ protected:
 
         igBeginGroup();
             ImVec2 tl;
-            igGetCursorPos(&tl);
+            tl = igGetCursorPos();
             igSetCursorPos(
                 ImVec2(
                     tl.x+(childWidth-(previewSize/2)),
@@ -399,11 +399,11 @@ protected:
             );
 
             // Preview
-            if (igBeginChild("###Preview", ImVec2(previewSize, previewSize), true, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
+            if (igBeginChild("###Preview", ImVec2(previewSize, previewSize), ImGuiChildFlags.Borders, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
                 vec4 bounds;
                 float psize = previewSize / 4;
                 if (active !is null) {
-                    igGetCursorPos(&tl);
+                    tl = igGetCursorPos();
                     if ((*active).parts[0] && cast(Part)(active.parts[0]))
                         bounds = previewImage(cast(Part)(active.parts[0]), ImVec2(psize, psize*2), previewSize, ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 0.6));
                     igSetCursorPos(tl);
@@ -519,4 +519,3 @@ public:
         super(_("Flip Pairing"));
     }
 }
-

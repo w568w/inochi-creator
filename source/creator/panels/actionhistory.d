@@ -6,7 +6,7 @@
 */
 module creator.panels.actionhistory;
 import creator.panels;
-import bindbc.imgui;
+import i2d.imgui;
 import creator.core.actionstack;
 import std.string;
 import creator.widgets;
@@ -27,7 +27,7 @@ protected:
         igSeparator();
 
         ImVec2 avail;
-        igGetContentRegionAvail(&avail);
+        avail = igGetContentRegionAvail();
 
         if (igBeginChild("##ActionList", ImVec2(0, avail.y-30))) {
             if (incActionHistory().length > 0) {

@@ -1,5 +1,5 @@
 module creator.widgets.label;
-import bindbc.imgui;
+import i2d.imgui;
 import creator.widgets.dummy;
 import creator.core.font;
 import inochi2d.core.nodes : Node;
@@ -35,7 +35,7 @@ void incTextDisabled(string text) {
 void incTextShadowed(string text) {
     
     ImVec2 origin;
-    igGetCursorPos(&origin);
+    origin = igGetCursorPos();
     
     // Shadow
     igSetCursorPos(ImVec2(origin.x+1, origin.y+1));
@@ -52,7 +52,7 @@ void incTextShadowed(string text) {
 void incTextBordered(string text, ImVec4 borderColor = ImVec4(0, 0, 0, 1)) {
     
     ImVec2 origin;
-    igGetCursorPos(&origin);
+    origin = igGetCursorPos();
     
     // Shadow
     igSetCursorPos(ImVec2(origin.x+1, origin.y));
@@ -77,7 +77,7 @@ void incTextLabel(string text) {
     ImVec2 origin;
     ImVec2 textSize;
 
-    igGetCursorScreenPos(&origin);
+    origin = igGetCursorScreenPos();
     textSize = incMeasureString(text);
     float xPadding = style.FramePadding.x;
     float yPadding = style.FramePadding.y;
@@ -135,76 +135,19 @@ bool incTextLinkWithIcon(string icon, string text) {
     return incTextLink(text);
 }
 
-bool incTextLink(string text, ImVec4 hoverColor = ImVec4(0.313, 0.521, 0.737, 1), ImVec4 clickedColor = ImVec4(0.132, 0.335, 0.523, 1), ImVec4 baseColor = ImVec4(0.186, 0.457, 0.708, 1)) {
-    ImGuiWindow* window = igGetCurrentWindow();
-    if (window.SkipItems) return false;
-    
-    enum TEXT_LINK_CLICKED_ID = "LinkClicked";
-    ImVec2 cursorPos;
-    igGetCursorPos(&cursorPos);
-    bool clicked, hovered, held;
-
-    igNewLine();
-
+bool incTextLink(string text) {
+    import std.string : toStringz;
     igPushID(text.ptr, text.ptr+text.length);
-        ImGuiStorage* storage = igGetStateStorage();
-        bool linkClicked = ImGuiStorage_GetBool(
-            storage, 
-            igGetID(TEXT_LINK_CLICKED_ID.ptr, TEXT_LINK_CLICKED_ID.ptr+TEXT_LINK_CLICKED_ID.length), 
-            false
-        );
-
-        ImVec2 size = incMeasureString(text);
-
-        igSetItemAllowOverlap();
-        // Create bounding box for clickable area
-        ImGuiID id = igGetID(text.ptr, text.ptr+text.length);
-        ImRect bb = ImRect(window.DC.CursorPos, ImVec2(window.DC.CursorPos.x+size.x, window.DC.CursorPos.y+size.y));
-        igItemSize(bb);
-        clicked = igButtonBehavior(bb, id, &hovered, &held, ImGuiButtonFlagsI.AllowItemOverlap);
-        
-        if (!igItemAdd(bb, id)) {
-            igPopID();
-            return false;
-        }
-
-        if (clicked) {
-             ImGuiStorage_SetBool(
-                storage, 
-                igGetID(TEXT_LINK_CLICKED_ID.ptr, TEXT_LINK_CLICKED_ID.ptr+TEXT_LINK_CLICKED_ID.length), 
-                true
-            );
-        }
-
-        // Seperate hover for cursor
-        if (hovered) {
-            igSetMouseCursor(ImGuiMouseCursor.Hand);
-        }
-
-        igSetCursorPos(cursorPos);
-        if (!held && hovered) {
-            incTextColored(hoverColor, text);
-            incAddUnderline(hoverColor);
-        } else if ((held && hovered) || linkClicked) {
-            incTextColored(clickedColor, text);
-            incAddUnderline(clickedColor);
-        } else {
-            incTextColored(baseColor, text);
-            incAddUnderline(baseColor);
-        }
-    igPopID();
-
+    scope(exit) igPopID();
+    auto storage = igGetStateStorage();
+    auto visitedId = igGetID("LinkClicked");
+    bool visited = ImGuiStorage_GetBool(storage, visitedId);
+    igPushStyleColor(ImGuiCol.TextLink, visited ?
+        ImVec4(0.132, 0.335, 0.523, 1) : ImVec4(0.186, 0.457, 0.708, 1));
+    scope(exit) igPopStyleColor();
+    bool clicked = igTextLink(text.toStringz);
+    if (clicked) ImGuiStorage_SetBool(storage, visitedId, true);
     return clicked;
-}
-
-private {
-    void incAddUnderline(ImVec4 color) {
-        ImVec2 min, max;
-        igGetItemRectMin(&min);
-        igGetItemRectMax(&max);
-        min.y = max.y;
-        ImDrawList_AddLine(igGetWindowDrawList(), min, max, igGetColorU32_Vec4(color), 1.0f);
-    }
 }
 
 /**

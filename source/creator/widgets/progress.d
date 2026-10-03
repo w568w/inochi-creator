@@ -18,7 +18,7 @@ bool incBufferBar(string label, float value, ImVec2 size, ImU32 bgColor, ImU32 f
     if (window.SkipItems) return false;
 
     ImVec2 avail;
-    igGetContentRegionAvail(&avail);
+    avail = igGetContentRegionAvail();
     if (size.x <= 0) size.x = avail.x-size.x;
     if (size.y == 0) size.y = 64;
 
@@ -59,7 +59,7 @@ bool incSpinner(string label, float radius, int thickness, ImU32 color) {
 
     // If radius less or equal to 0 is passed do normal imgui behaviour
     ImVec2 avail;
-    igGetContentRegionAvail(&avail);
+    avail = igGetContentRegionAvail();
     if (radius <= 0) radius = (min(avail.x, avail.y)/2) - radius;
 
 
@@ -93,7 +93,7 @@ bool incSpinner(string label, float radius, int thickness, ImU32 color) {
         ));
     }
 
-    ImDrawList_PathStroke(igGetWindowDrawList(), color, ImDrawFlags.None, thickness);
+    ImDrawList_PathStroke(igGetWindowDrawList(), color, thickness);
     igNewLine();
     return false;
 }

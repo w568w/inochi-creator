@@ -17,7 +17,7 @@ void incTooltip(string tip) {
     if (igIsItemHovered()) {
         igBeginTooltip();
 
-            igPushFont(incMainFont());
+            igPushFont(incMainFont(), 0);
                 igPushTextWrapPos(igGetFontSize() * 35);
                 igTextUnformatted(tip.ptr, tip.ptr+tip.length);
                 igPopTextWrapPos();

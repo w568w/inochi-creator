@@ -17,7 +17,7 @@ import creator.core;
 import creator.viewport.vertex;
 import creator;
 import inochi2d;
-import bindbc.imgui;
+import i2d.imgui;
 import i18n;
 import std.stdio;
 
@@ -94,7 +94,7 @@ void incViewportModelMenu() {
         }
     }
 
-    if (igBeginChild("FOUND_PARTS", ImVec2(256, 256), false)) {
+    if (igBeginChild("FOUND_PARTS", ImVec2(256, 256), ImGuiChildFlags.None)) {
         if (foundParts.length > 0) {
             ImVec2 avail = incAvailableSpace();
             ImVec2 cursorPos;
@@ -103,7 +103,8 @@ void incViewportModelMenu() {
                     ImVec2 nameSize = incMeasureString(part.name);
 
                     // Selectable
-                    igGetCursorPos(&cursorPos);
+                    cursorPos = igGetCursorPos();
+                    igSetNextItemAllowOverlap();
                     if (igSelectable("###PartSelectable", false, ImGuiSelectableFlags.None, ImVec2(avail.x, ENTRY_SIZE))) {
                         
                         // Add selection if ctrl is down, otherwise set selection
@@ -116,7 +117,6 @@ void incViewportModelMenu() {
                         igCloseCurrentPopup();
                         return;
                     }
-                    igSetItemAllowOverlap();
 
                     if(igBeginDragDropSource(ImGuiDragDropFlags.SourceAllowNullID)) {
                         igSetDragDropPayload("_PUPPETNTREE", cast(void*)&part, (&part).sizeof, ImGuiCond.Always);

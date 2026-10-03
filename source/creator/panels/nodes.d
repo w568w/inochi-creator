@@ -369,7 +369,7 @@ protected:
                         handleRangeSelect(n);
 
                         // Selectable
-                        if (igSelectable(isRoot ? __("Puppet") : n.name.toStringz, selected, ImGuiSelectableFlags.None, ImVec2(0, 0))) {
+                        if (igSelectable(isRoot ? __("Puppet") : n.name.toStringz, selected, ImGuiSelectableFlagsI.NoPadWithHalfSpacing, ImVec2(0, 0))) {
                             switch(incEditMode) {
                                 default:
                                     selectStateUpdate = true;
@@ -503,7 +503,7 @@ protected:
             return;
         }
 
-        if (igBeginChild("NodesMain", ImVec2(0, -30), false)) {
+        if (igBeginChild("NodesMain", ImVec2(0, -30), ImGuiChildFlags.None)) {
             
             // temp variables
             float scrollDelta = 0;
@@ -512,7 +512,7 @@ protected:
             // Get the screen position of our node window
             // as well as the size for the drag/drop scroll
             ImVec2 screenPos;
-            igGetCursorScreenPos(&screenPos);
+            screenPos = igGetCursorScreenPos();
             ImRect crect = ImRect(
                 screenPos,
                 ImVec2(screenPos.x+avail.x, screenPos.y+avail.y)
@@ -524,7 +524,7 @@ protected:
                 auto data = igAcceptDragDropPayload("_PUPPETNTREE", ImGuiDragDropFlags.AcceptPeekOnly | ImGuiDragDropFlags.SourceAllowNullID);
                 if (igIsMouseDragging(ImGuiMouseButton.Left) && data && data.Data) {
                     ImVec2 mousePos;
-                    igGetMousePos(&mousePos);
+                    mousePos = igGetMousePos();
 
                     // If mouse is inside the window
                     if (mousePos.x > crect.Min.x && mousePos.x < crect.Max.x) {
@@ -642,5 +642,3 @@ public:
     Generate nodes frame
 */
 mixin incPanel!NodesPanel;
-
-

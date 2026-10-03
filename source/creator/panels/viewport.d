@@ -16,7 +16,7 @@ import creator.actions;
 import creator;
 import inochi2d;
 import inochi2d.core.dbg;
-import bindbc.imgui;
+import i2d.imgui;
 import std.string;
 import i18n;
 
@@ -57,13 +57,12 @@ protected:
         auto io = igGetIO();
         auto camera = inGetCamera();
         auto drawList = igGetWindowDrawList();
-        auto window = igGetCurrentWindow();
 
         incModelEditorCommonHotKeys();
 
         // Draw viewport itself
         ImVec2 currSize;
-        igGetContentRegionAvail(&currSize);
+        currSize = igGetContentRegionAvail();
 
         // We do not want the viewport to be NaN
         // That will crash the app
@@ -90,12 +89,15 @@ protected:
                 incEndDragInViewport(btn);
             }
         }
-        if (igBeginChild("##ViewportView", ImVec2(0, -32), false, flags)) {
-            igGetContentRegionAvail(&currSize);
+        ImRect rect;
+        if (igBeginChild("##ViewportView", ImVec2(0, -32), ImGuiChildFlags.None, flags)) {
+            currSize = igGetContentRegionAvail();
             currSize = ImVec2(
                 clamp(currSize.x, 128, float.max), 
                 clamp(currSize.y, 128, float.max)
             );
+            ImVec2 viewPos = igGetCursorScreenPos();
+            rect = ImRect(viewPos, ImVec2(viewPos.x + currSize.x, viewPos.y + currSize.y));
 
             if (currSize != lastSize) {
                 inSetViewport(cast(int)(currSize.x*incGetUIScale()), cast(int)(currSize.y*incGetUIScale()));
@@ -131,17 +133,6 @@ protected:
             ImVec4 color;
             inGetClearColor(color.x, color.y, color.z, color.w);
 
-            ImRect rect = ImRect(
-                ImVec2(
-                    window.InnerRect.Max.x-1,
-                    window.InnerRect.Max.y,
-                ),
-                ImVec2(
-                    window.InnerRect.Min.x+1,
-                    window.InnerRect.Max.y+currSize.y,
-                ),
-            );
-
             // Render background color
             ImDrawList_AddRectFilled(drawList,
                 rect.Min,
@@ -152,7 +143,7 @@ protected:
             // Render our viewport
             ImDrawList_AddImage(
                 drawList,
-                cast(void*)inGetRenderImage(),
+                ImTextureRef(null, inGetRenderImage()),
                 rect.Min,
                 rect.Max,
                 ImVec2((0.5/width), 1-(0.5/height)), 
@@ -168,11 +159,11 @@ protected:
                 ImVec2 currPos;
                 if (igIsItemHovered()) {
                     if (igIsItemClicked(ImGuiMouseButton.Right)) {
-                        igGetMousePos(&downPos);
+                        downPos = igGetMousePos();
                     }
 
                     if (!igIsPopupOpen("ViewportMenu") && igIsMouseReleased(ImGuiMouseButton.Right)) {
-                        igGetMousePos(&currPos);
+                        currPos = igGetMousePos();
                         float dist = sqrt(((downPos.x-currPos.x)^^2)+((downPos.y-currPos.y)^^2));
                         
                         if (dist < 16) {
@@ -221,14 +212,8 @@ protected:
 
         // Draw line in a better way
         ImDrawList_AddLine(drawList, 
-            ImVec2(
-                window.InnerRect.Max.x-1,
-                window.InnerRect.Max.y+currSize.y,
-            ),
-            ImVec2(
-                window.InnerRect.Min.x+1,
-                window.InnerRect.Max.y+currSize.y,
-            ), 
+            ImVec2(rect.Min.x, rect.Max.y),
+            rect.Max,
             igColorConvertFloat4ToU32(*igGetStyleColorVec4(ImGuiCol.Separator)), 
             2
         );
@@ -276,8 +261,8 @@ protected:
         }
 
         // BOTTOM VIEWPORT CONTROLS
-        igGetContentRegionAvail(&currSize);
-        if (igBeginChild("##ViewportControls", ImVec2(0, currSize.y), false, flags.NoScrollbar)) {
+        currSize = igGetContentRegionAvail();
+        if (igBeginChild("##ViewportControls", ImVec2(0, currSize.y), ImGuiChildFlags.None, flags.NoScrollbar)) {
             igSetCursorPosY(igGetCursorPosY()+4);
             igPushItemWidth(72);
                 igSpacing();

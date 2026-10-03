@@ -28,8 +28,7 @@ import std.stdio;
 import std.conv;
 import std.range : repeat;
 
-public import bindbc.imgui;
-public import bindbc.imgui.ogl;
+public import i2d.imgui;
 public import creator.core.settings;
 public import creator.core.actionstack;
 public import creator.core.tasks;
@@ -169,6 +168,9 @@ void incFinalize() {
     // This is important to prevent thread leakage
     import creator.viewport.test : incViewportTestWithdraw;
     incViewportTestWithdraw();
+    import creator.windows : incGetWindowStackSize, incPopWindow, incPopWindowListAll;
+    while (incGetWindowStackSize() > 0) incPopWindow();
+    incPopWindowListAll();
 
     // Save settings
     igSaveIniSettingsToDisk(igGetIO().IniFilename);
@@ -241,13 +243,6 @@ void incOpenWindow() {
     enforce(sdlSupport != SDLSupport.noLibrary, "SDL2 library not found!");
     enforce(sdlSupport != SDLSupport.badLibrary, "Bad SDL2 library found!");
     
-    version(BindImGui_Dynamic) {
-        auto imSupport = loadImGui();
-        enforce(imSupport != ImGuiSupport.noLibrary, "cimgui library not found!");
-    
-        // HACK: For some reason this check fails on some macOS and Linux installations
-        version(Windows) enforce(imSupport != ImGuiSupport.badLibrary, "Bad cimgui library found!");
-    }
 
     
     int code = SDL_Init(SDL_INIT_EVERYTHING & ~SDL_INIT_AUDIO);
@@ -388,6 +383,8 @@ void incOpenWindow() {
 void incCreateContext() {
 
     // Setup IMGUI
+    enforce(igDebugCheckVersionAndDataLayout(IMGUI_VERSION, ImGuiIO.sizeof, ImGuiStyle.sizeof,
+        ImVec2.sizeof, ImVec4.sizeof, ImDrawVert.sizeof, ImDrawIdx.sizeof), "ImGui binding layout mismatch");
     auto ctx = igCreateContext(null);
     io = igGetIO();
 
@@ -508,9 +505,9 @@ void incInitStyling() {
     style.Colors[ImGuiCol.ResizeGripActive]       = ImVec4(0.55f, 0.55f, 0.56f, 0.00f);
     style.Colors[ImGuiCol.Tab]                    = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     style.Colors[ImGuiCol.TabHovered]             = ImVec4(0.34f, 0.34f, 0.34f, 0.80f);
-    style.Colors[ImGuiCol.TabActive]              = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-    style.Colors[ImGuiCol.TabUnfocused]           = ImVec4(0.14f, 0.14f, 0.14f, 0.97f);
-    style.Colors[ImGuiCol.TabUnfocusedActive]     = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
+    style.Colors[ImGuiCol.TabSelected]              = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+    style.Colors[ImGuiCol.TabDimmed]           = ImVec4(0.14f, 0.14f, 0.14f, 0.97f);
+    style.Colors[ImGuiCol.TabDimmedSelected]     = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
     style.Colors[ImGuiCol.DockingPreview]         = ImVec4(0.62f, 0.68f, 0.75f, 0.70f);
     style.Colors[ImGuiCol.DockingEmptyBg]         = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
     style.Colors[ImGuiCol.PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
@@ -524,7 +521,7 @@ void incInitStyling() {
     style.Colors[ImGuiCol.TableRowBgAlt]          = ImVec4(0.463f, 0.463f, 0.463f, 0.267f);
     style.Colors[ImGuiCol.TextSelectedBg]         = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
     style.Colors[ImGuiCol.DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
-    style.Colors[ImGuiCol.NavHighlight]           = ImVec4(0.32f, 0.32f, 0.32f, 1.00f);
+    style.Colors[ImGuiCol.NavCursor]           = ImVec4(0.32f, 0.32f, 0.32f, 1.00f);
     style.Colors[ImGuiCol.NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
     style.Colors[ImGuiCol.NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
     style.Colors[ImGuiCol.ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
@@ -548,9 +545,9 @@ void incInitStyling() {
     style.Colors[ImGuiCol.CheckMark] = ImVec4(0, 0, 0, 1);
     style.Colors[ImGuiCol.Tab] = ImVec4(0.98, 0.98, 0.98, 1);
     style.Colors[ImGuiCol.TabHovered] = ImVec4(1, 1, 1, 1);
-    style.Colors[ImGuiCol.TabActive] = ImVec4(0.8, 0.8, 0.8, 1);
-    style.Colors[ImGuiCol.TabUnfocused] = ImVec4(0.92, 0.92, 0.92, 1);
-    style.Colors[ImGuiCol.TabUnfocusedActive] = ImVec4(0.88, 0.88, 0.88, 1);
+    style.Colors[ImGuiCol.TabSelected] = ImVec4(0.8, 0.8, 0.8, 1);
+    style.Colors[ImGuiCol.TabDimmed] = ImVec4(0.92, 0.92, 0.92, 1);
+    style.Colors[ImGuiCol.TabDimmedSelected] = ImVec4(0.88, 0.88, 0.88, 1);
     style.Colors[ImGuiCol.MenuBarBg] = ImVec4(0.863, 0.863, 0.863, 1);  
     style.Colors[ImGuiCol.PopupBg] = ImVec4(0.941, 0.941, 0.941, 1);  
     style.Colors[ImGuiCol.Header] = ImVec4(0.990, 0.990, 0.990, 1);  
@@ -612,8 +609,8 @@ void incBeginLoopNoEv() {
     ImGui_ImplSDL2_NewFrame();
 
     // Do our DPI pre-processing
-    igNewFrame();
     incGLBackendBeginRender();
+    igNewFrame();
 
     version(linux) dpUpdate();
 
@@ -636,8 +633,15 @@ void incBeginLoopNoEv() {
     }
 
     // Add docking space
-    viewportDock = igDockSpaceOverViewport(null, ImGuiDockNodeFlags.NoDockingInCentralNode, null);
-    if (!incSettingsCanGet("firstrun_complete")) {
+    bool restoreLayout;
+    if (firstFrame) {
+        // Keep the ID identical to ImGui's current DockSpaceOverViewport default.
+        auto dockHostName = "WindowOverViewport_%08X".format(igGetMainViewport().ID);
+        viewportDock = igImHashStr("DockSpace", 0, igImHashStr(dockHostName.toStringz));
+        restoreLayout = incMigrateDockLayout();
+    }
+    igDockSpaceOverViewport(viewportDock, null, ImGuiDockNodeFlags.NoDockingOverCentralNode, null);
+    if (restoreLayout || !incSettingsCanGet("firstrun_complete")) {
         incSetDefaultLayout();
         incSettingsSet("firstrun_complete", true);
     }
@@ -655,6 +659,43 @@ void incBeginLoopNoEv() {
     incStatusUpdate();
 
     incHandleDialogHandlers();
+}
+
+private bool incMigrateDockLayout() {
+    // Pre-1.91.6 ImGui used CRC32-adler for this main-viewport dockspace ID.
+    enum ImGuiID legacyDockID = 0x8B93E3BD;
+    auto current = igDockBuilderGetNode(viewportDock);
+    auto legacy = igDockBuilderGetNode(legacyDockID);
+    if (!legacy || (current && ImGuiDockNode_IsSplitNode(current)))
+        return current is null;
+
+    import std.file : copy, exists;
+    string iniPath = incGetAppImguiConfigFile();
+    string backupPath = iniPath ~ ".pre-imgui-1.92";
+    if (exists(iniPath) && !exists(backupPath)) copy(iniPath, backupPath);
+
+    // An earlier run may have saved floating panels beside an orphaned old tree.
+    bool damaged;
+    if (current) {
+        foreach (name; ["###Nodes", "###Inspector", "###Parameters"]) {
+            auto settings = igFindWindowSettingsByID(igImHashStr(name.ptr, name.length));
+            if (settings && settings.DockId == 0) damaged = true;
+        }
+    }
+
+    import creator.panels : incPanels;
+    ImVector!(const(char)*) windowPairs;
+    scope(exit) windowPairs.clear();
+    const(char)*[] windowNames;
+    foreach (panel; incPanels) windowNames ~= ("###" ~ panel.name).toStringz;
+    foreach (name; windowNames) {
+        windowPairs.push_back(&name);
+        windowPairs.push_back(&name);
+    }
+    igDockBuilderCopyDockSpace(legacyDockID, viewportDock, &windowPairs);
+    igDockBuilderRemoveNode(legacyDockID);
+    igDockBuilderFinish(viewportDock);
+    return damaged;
 }
 
 void incSetDefaultLayout() {

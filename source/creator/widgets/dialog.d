@@ -8,7 +8,7 @@ module creator.widgets.dialog;
 import creator.widgets.dummy;
 import creator.widgets.label;
 import creator.core.font;
-import bindbc.imgui;
+import i2d.imgui;
 import inochi2d;
 import i18n;
 import std.algorithm.iteration: filter;
@@ -77,7 +77,7 @@ void incRenderDialogs() {
                 if (igBeginChild("ErrorMainBoxLogo", ImVec2(errImgScale, errImgScale))) {
                     version (InBranding) {
                         import creator.core : incGetLogo;
-                        igImage(cast(void*)adaTextures[cast(size_t)entry.level].getTextureId(), ImVec2(errImgScale, errImgScale));
+                        igImage(ImTextureRef(null, adaTextures[cast(size_t)entry.level].getTextureId()), ImVec2(errImgScale, errImgScale));
                     }
                 }
                 igEndChild();

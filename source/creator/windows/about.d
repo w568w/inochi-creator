@@ -41,7 +41,7 @@ protected:
 
         // Draw Ada
         ImVec2 sPos;
-        igGetCursorScreenPos(&sPos);
+        sPos = igGetCursorScreenPos();
 
         version (InBranding) {
             ImVec2 avail = incAvailableSpace();
@@ -51,7 +51,7 @@ protected:
             ));
 
             igImage(
-                cast(void*)incGetAda().getTextureId(),
+                ImTextureRef(null, incGetAda().getTextureId()),
                 ImVec2(ADA_SIZE, ADA_SIZE),
                 ImVec2(0, 0),
                 ImVec2(1, 1), 
@@ -65,7 +65,7 @@ protected:
 
             version (InBranding) {
                 igImage(
-                    cast(void*)incGetLogo().getTextureId(), 
+                    ImTextureRef(null, incGetLogo().getTextureId()),
                     ImVec2(64, 64), 
                     ImVec2(0, 0), 
                     ImVec2(1, 1), 

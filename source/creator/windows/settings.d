@@ -65,7 +65,9 @@ protected:
             256+128
         );
 
-        igSetNextWindowPos(wpos, ImGuiCond.Appearing, ImVec2(0.5, 0.5));
+        float uiScale = incGetUIScale();
+        igSetNextWindowPos(wpos, uiScale != targetUIScale ? ImGuiCond.Always : ImGuiCond.Appearing, ImVec2(0.5, 0.5));
+        targetUIScale = uiScale;
         igSetNextWindowSize(uiSize, ImGuiCond.Appearing);
         igSetNextWindowSizeConstraints(uiSize, ImVec2(float.max, float.max));
         super.onBeginUpdate();
@@ -76,7 +78,7 @@ protected:
         float availX = incAvailableSpace().x;
 
         // Sidebar
-        if (igBeginChild("SettingsSidebar", ImVec2(availX/3.5, -28), true)) {
+        if (igBeginChild("SettingsSidebar", ImVec2(availX/3.5, -28), ImGuiChildFlags.Borders)) {
             igPushTextWrapPos(128);
                 if (igSelectable(__("Look and Feel"), settingsPane == SettingsPane.LookAndFeel)) {
                     settingsPane = SettingsPane.LookAndFeel;
@@ -101,7 +103,7 @@ protected:
         igSameLine(0, 4);
 
         // Contents
-        if (igBeginChild("SettingsContent", ImVec2(0, -28), true)) {
+        if (igBeginChild("SettingsContent", ImVec2(0, -28), ImGuiChildFlags.Borders)) {
             availX = incAvailableSpace().x;
 
             // Start settings panel elements
@@ -137,7 +139,7 @@ protected:
 
                                     // macOS follows Retina scaling.
                                 } else {
-                                    if (igInputInt(__("UI Scale"), &tmpUIScale, 25, 50, ImGuiInputTextFlags.EnterReturnsTrue)) {
+                                    if (igInputInt(__("UI Scale"), &tmpUIScale, 25, 50)) {
                                         tmpUIScale = clamp(tmpUIScale, 100, 200);
                                         incSetUIScale(cast(float)tmpUIScale/100.0);
                                     }
@@ -185,12 +187,12 @@ protected:
                             }
 
                             int autosaveFreq = incGetAutosaveInterval();
-                            if (igInputInt(__("Save Interval (Minutes)"), &autosaveFreq, 5, 15, ImGuiInputTextFlags.EnterReturnsTrue)) {
+                            if (igInputInt(__("Save Interval (Minutes)"), &autosaveFreq, 5, 15)) {
                                 incSetAutosaveInterval(autosaveFreq);
                             }
 
                             int saveFileLimit = incGetAutosaveFileLimit();
-                            if (igInputInt(__("Maximum Autosaves"), &saveFileLimit, 1, 5, ImGuiInputTextFlags.EnterReturnsTrue)) {
+                            if (igInputInt(__("Maximum Autosaves"), &saveFileLimit, 1, 5)) {
                                 incSetAutosaveFileLimit(saveFileLimit);
                             }
                         endSection();
@@ -264,7 +266,7 @@ protected:
         igEndChild();
 
         // Bottom buttons
-        if (igBeginChild("SettingsButtons", ImVec2(0, 0), false, ImGuiWindowFlags.NoScrollbar)) {
+        if (igBeginChild("SettingsButtons", ImVec2(0, 0), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar)) {
             if (changesRequiresRestart) {
                 igPushTextWrapPos(256+128);
                     incTextColored(

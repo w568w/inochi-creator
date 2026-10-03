@@ -8,7 +8,7 @@ module creator.panels.animlist;
 import creator.panels;
 import creator : EditMode;
 import i18n;
-import bindbc.imgui;
+import i2d.imgui;
 import creator;
 import std.string;
 import inochi2d;
@@ -27,7 +27,7 @@ protected:
         auto canim = incAnimationGet();
         string currAnimName = canim ? canim.name : "";
 
-        if (igBeginChild("ANIM_LIST", ImVec2(0, -32), true)) {
+        if (igBeginChild("ANIM_LIST", ImVec2(0, -32), ImGuiChildFlags.Borders)) {
             foreach(name, ref anim; incActivePuppet().getAnimations()) {
                 igPushID(name.ptr, name.ptr+name.length);
                     if (igBeginPopup("###OPTIONS")) {
@@ -71,7 +71,7 @@ protected:
 
         incDummy(ImVec2(0, 2));
 
-        if (igBeginChild("ANIM_BTNS", ImVec2(0, 0), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
+        if (igBeginChild("ANIM_BTNS", ImVec2(0, 0), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
 
             incDummy(ImVec2(-26, 0));
             igSameLine(0, 0);

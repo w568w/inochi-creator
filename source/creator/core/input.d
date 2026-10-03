@@ -2,7 +2,7 @@ module creator.core.input;
 import creator.core;
 import inochi2d.core;
 import inochi2d.math;
-import bindbc.imgui;
+import i2d.imgui;
 import bindbc.sdl;
 import std.algorithm;
 
@@ -105,7 +105,7 @@ bool incInputIsPopupRequested() {
 */
 bool incInputIsDragRequested(ImGuiMouseButton btn = ImGuiMouseButton.Right) {
     ImVec2 dragDelta;
-    igGetMouseDragDelta(&dragDelta, btn);
+    dragDelta = igGetMouseDragDelta(btn);
     return abs(dragDelta.x) > 0.1f && abs(dragDelta.y) > 0.1f;
 }
 

@@ -1,7 +1,7 @@
 module creator.widgets.texture;
 import creator.widgets;
 import creator.core;
-import bindbc.imgui;
+import i2d.imgui;
 import inmath;
 import inochi2d;
 import std.math : quantize;
@@ -11,10 +11,10 @@ import bindbc.opengl : GL_RGBA;
     Renders a texture slot with specified size
 */
 void incTextureSlot(string text, Texture texture, ImVec2 size = ImVec2(92, 92), float gridSize = 32, ImGuiWindowFlags flags = ImGuiWindowFlags.None) {
-    if (igBeginChildFrame(igGetID(text.ptr, text.ptr+text.length), size, flags | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
+    if (igBeginChild(igGetID(text.ptr, text.ptr+text.length), size, ImGuiChildFlags.FrameStyle, flags | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
 
         ImVec2 startPos;
-        igGetCursorPos(&startPos);
+        startPos = igGetCursorPos();
 
         float paddingX = igGetStyle().FramePadding.x;
         float paddingY = igGetStyle().FramePadding.y;
@@ -31,7 +31,7 @@ void incTextureSlot(string text, Texture texture, ImVec2 size = ImVec2(92, 92), 
 
                 ImVec2 screenStart;
                 auto drawList = igGetWindowDrawList();
-                igGetCursorScreenPos(&screenStart);
+                screenStart = igGetCursorScreenPos();
 
                 // Draw background grid
                 ImVec2 gridMin = ImVec2(screenStart.x-(paddingX/2), screenStart.y-(paddingY/2));
@@ -41,7 +41,7 @@ void incTextureSlot(string text, Texture texture, ImVec2 size = ImVec2(92, 92), 
                 if (texture.colorMode == GL_RGBA) {
                     ImDrawList_AddImageRounded(
                         drawList,
-                        cast(ImTextureID)incGetGrid().getTextureId(),
+                        ImTextureRef(null, incGetGrid().getTextureId()),
                         gridMin,
                         gridMax,
                         ImVec2(0, 0),
@@ -76,7 +76,7 @@ void incTextureSlot(string text, Texture texture, ImVec2 size = ImVec2(92, 92), 
                     // Texture is square
                     ImDrawList_AddImageRounded(
                         drawList,
-                        cast(ImTextureID)texture.getTextureId(),
+                        ImTextureRef(null, texture.getTextureId()),
                         gridMin,
                         gridMax,
                         ImVec2(0, 0),
@@ -97,7 +97,7 @@ void incTextureSlot(string text, Texture texture, ImVec2 size = ImVec2(92, 92), 
                     // Draw texture preview
                     igSetCursorPos(ImVec2(startPos.x+bounds.x, startPos.y+bounds.y));
                     igImage(
-                        cast(ImTextureID)texture.getTextureId(),
+                        ImTextureRef(null, texture.getTextureId()),
                         ImVec2(bounds.z, bounds.w)
                     );
                 }
@@ -109,23 +109,23 @@ void incTextureSlot(string text, Texture texture, ImVec2 size = ImVec2(92, 92), 
             // Draw text
             igSetCursorPos(startPos);
             ImVec2 textSize = incMeasureString(text);
-            if (igBeginChildFrame(igGetID("LABEL"), ImVec2(clamp(textSize.x+paddingX*2, 8, size.x-(paddingX*2)), textSize.y+paddingY*2), ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
+            if (igBeginChild(igGetID("LABEL"), ImVec2(clamp(textSize.x+paddingX*2, 8, size.x-(paddingX*2)), textSize.y+paddingY*2), ImGuiChildFlags.FrameStyle, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
                 incText(text);
             }
-            igEndChildFrame();
+            igEndChild();
         igPopStyleColor();
     }
-    igEndChildFrame();
+    igEndChild();
 }
 
 /**
     Renders a texture slot with specified size
 */
 void incTextureSlotUntitled(string name, Texture texture, ImVec2 size = ImVec2(92, 92), float gridSize = 32, ImGuiWindowFlags flags = ImGuiWindowFlags.None) {
-    if (igBeginChildFrame(igGetID(name.ptr, name.ptr+name.length), size, flags | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
+    if (igBeginChild(igGetID(name.ptr, name.ptr+name.length), size, ImGuiChildFlags.FrameStyle, flags | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
 
         ImVec2 startPos;
-        igGetCursorPos(&startPos);
+        startPos = igGetCursorPos();
 
         float paddingX = igGetStyle().FramePadding.x;
         float paddingY = igGetStyle().FramePadding.y;
@@ -142,7 +142,7 @@ void incTextureSlotUntitled(string name, Texture texture, ImVec2 size = ImVec2(9
 
                 ImVec2 screenStart;
                 auto drawList = igGetWindowDrawList();
-                igGetCursorScreenPos(&screenStart);
+                screenStart = igGetCursorScreenPos();
 
                 // Draw background grid
                 ImVec2 gridMin = ImVec2(screenStart.x-(paddingX/2), screenStart.y-(paddingY/2));
@@ -152,7 +152,7 @@ void incTextureSlotUntitled(string name, Texture texture, ImVec2 size = ImVec2(9
                 if (texture.colorMode == GL_RGBA) {
                     ImDrawList_AddImageRounded(
                         drawList,
-                        cast(ImTextureID)incGetGrid().getTextureId(),
+                        ImTextureRef(null, incGetGrid().getTextureId()),
                         gridMin,
                         gridMax,
                         ImVec2(0, 0),
@@ -187,7 +187,7 @@ void incTextureSlotUntitled(string name, Texture texture, ImVec2 size = ImVec2(9
                     // Texture is square
                     ImDrawList_AddImageRounded(
                         drawList,
-                        cast(ImTextureID)texture.getTextureId(),
+                        ImTextureRef(null, texture.getTextureId()),
                         gridMin,
                         gridMax,
                         ImVec2(0, 0),
@@ -208,12 +208,12 @@ void incTextureSlotUntitled(string name, Texture texture, ImVec2 size = ImVec2(9
                     // Draw texture preview
                     igSetCursorPos(ImVec2(startPos.x+bounds.x, startPos.y+bounds.y));
                     igImage(
-                        cast(ImTextureID)texture.getTextureId(),
+                        ImTextureRef(null, texture.getTextureId()),
                         ImVec2(bounds.z, bounds.w)
                     );
                 }
             }
         igEndGroup();
     }
-    igEndChildFrame();
+    igEndChild();
 }

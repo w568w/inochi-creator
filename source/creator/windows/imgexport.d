@@ -89,7 +89,7 @@ protected:
     void onUpdate() {
 
         // Contents
-        if (igBeginChild("ExportContent", ImVec2(0, -28), true)) {
+        if (igBeginChild("ExportContent", ImVec2(0, -28), ImGuiChildFlags.Borders)) {
             incText(_("Export Settings"));
 
             igSpacing();
@@ -115,7 +115,7 @@ protected:
         igEndChild();
 
         // Bottom buttons
-        if (igBeginChild("ExportButtons", ImVec2(0, 0), false, ImGuiWindowFlags.NoScrollbar)) {
+        if (igBeginChild("ExportButtons", ImVec2(0, 0), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar)) {
             incDummy(ImVec2(-64, 0));
             igSameLine(0, 0);
 

@@ -69,22 +69,22 @@ protected:
         
 
         ImVec2 origin;
-        igGetCursorStartPos(&origin);
+        origin = igGetCursorStartPos();
 
         igIndent();
-            if (igBeginChild("##BODY", ImVec2(-4, 0), false, ImGuiWindowFlags.NoScrollbar)) {
+            if (igBeginChild("##BODY", ImVec2(-4, 0), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar)) {
                 ImVec2 avail = incAvailableSpace();
                 igPushTextWrapPos(avail.x);
 
                     igSetCursorPosY(16);
 
-                    igSetWindowFontScale(1.8);
+                    igPushFont(null, igGetStyle().FontSizeBase * 1.8);
                         ImVec2 size = incMeasureString(_(title));
 
                         incDummy(ImVec2((avail.x/2)-(size.x/2), size.y));
                         igSameLine(0, 0);
                         incTextShadowed(_(title));
-                    igSetWindowFontScale(1);
+                    igPopFont();
                     igNewLine();
 
                     incDummy(ImVec2(16, 64));

@@ -6,7 +6,7 @@
 */
 module creator.windows;
 import creator.core;
-import bindbc.imgui;
+import i2d.imgui;
 import creator.widgets;
 import std.string;
 import std.conv;
@@ -119,7 +119,7 @@ public:
 
     ImVec2 getPosition() {
         ImVec2 pos;
-        igGetWindowPos(&pos);
+        pos = igGetWindowPos();
         return pos;
     }
 
@@ -270,6 +270,7 @@ void incPopWelcomeWindow() {
     if (windowStack) {
         foreach(i; 0..windowStack.length) {
             if (auto ww = cast(WelcomeWindow)windowStack[i]) {
+                windowStack[i].onClose();
                 windowStack = windowStack.remove(i);
                 return;
             }

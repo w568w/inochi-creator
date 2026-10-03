@@ -22,7 +22,6 @@ void incBeginViewportToolArea(string id_str, ImVec2 pos, bool pad = true) {
 }
 
 void incBeginViewportToolArea(string id_str, ImGuiDir hdir, ImGuiDir vdir = ImGuiDir.Up, bool pad = true, ImVec2* pos = null) {
-    igSetItemAllowOverlap();
     igPushID(id_str.ptr, id_str.ptr+id_str.length);
     auto storage = igGetStateStorage();
     auto win = igGetCurrentWindow();
@@ -55,7 +54,8 @@ void incBeginViewportToolArea(string id_str, ImGuiDir hdir, ImGuiDir vdir = ImGu
     igPushStyleVar(ImGuiStyleVar.FrameRounding, 0);
 
     enum FLAGS = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
-    igBeginChild("CONTENT_CHILD", ImVec2(data.contentSize.x, data.contentSize.y), false, FLAGS);
+    igSetNextItemAllowOverlap();
+    igBeginChild("CONTENT_CHILD", ImVec2(data.contentSize.x, data.contentSize.y), ImGuiChildFlags.None, FLAGS);
 }
 
 void incEndViewportToolArea() {

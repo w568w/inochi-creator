@@ -3,7 +3,7 @@ import inochi2d.core.animation;
 import inochi2d;
 import inochi2d.core.animation.player;
 import creator.widgets;
-import bindbc.imgui;
+import i2d.imgui;
 
 enum MIN_TRACK_HEIGHT = 26;
 enum MIN_HEADER_WIDTH = 128;
@@ -20,7 +20,7 @@ void incAnimationLaneHeader(ref AnimationLane lane, ref float width, ref float h
     igPushID(cast(void*)lane.paramRef);
     igPushStyleVar(ImGuiStyleVar.ItemSpacing, ImVec2(4, 0));
     igPushStyleColor(ImGuiCol.ChildBg, ImVec4(0, 0, 0, 0.15));
-        if (igBeginChild("HEADER", ImVec2(width, height), true)) {
+        if (igBeginChild("HEADER", ImVec2(width, height), ImGuiChildFlags.Borders)) {
 
             incDummy(ImVec2(0, 8));
             igIndent();
@@ -58,7 +58,7 @@ void incHeaderResizer(ref float width, bool side = false) {
         );
 
         ImVec2 mousePos;
-        igGetMousePos(&mousePos);
+        mousePos = igGetMousePos();
 
         ImVec2 size = ImVec2(
             window.WorkRect.Min.x-window.WorkRect.Max.x,
@@ -155,7 +155,7 @@ void incBeginTimelinePlayhead(ref Animation anim, float zoom) {
     float fullSize = actualFrameSize*(cast(float)anim.length-1);
 
     ImVec2 start;
-    igGetCursorScreenPos(&start);
+    start = igGetCursorScreenPos();
 
     ImGuiStorage_SetFloat(storage, igGetID("PlayHead_StartX"), start.x);
     ImGuiStorage_SetFloat(storage, igGetID("PlayHead_StartY"), start.y);
@@ -232,7 +232,7 @@ void incTimelineLane(ref AnimationLane lane, ref Animation anim, float zoom, int
     
 
     ImVec2 start;
-    igGetCursorScreenPos(&start);
+    start = igGetCursorScreenPos();
 
     ImRect laneArea = ImRect(
         ImVec2(start.x, start.y),
@@ -247,7 +247,7 @@ void incTimelineLane(ref AnimationLane lane, ref Animation anim, float zoom, int
 
     igPushClipRect(laneArea.Min, laneArea.Max, true);
         ImVec2 mousePos;
-        igGetMousePos(&mousePos);
+        mousePos = igGetMousePos();
         float mx = mousePos.x-start.x;
         float my = mousePos.y-start.y;
 

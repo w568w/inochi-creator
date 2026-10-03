@@ -20,7 +20,7 @@ import creator.widgets.viewport;
 import creator.widgets.label;
 import creator.widgets.tooltip;
 import i18n;
-import bindbc.imgui;
+import i2d.imgui;
 import std.algorithm.sorting;
 import std.algorithm.searching;
 import std.stdio;
@@ -114,8 +114,8 @@ void incViewportPoll() {
     incInputPoll();
     ImVec2 pos;
     ImVec2 mpos;
-    igGetItemRectMin(&pos);
-    igGetMousePos(&mpos);
+    pos = igGetItemRectMin();
+    mpos = igGetMousePos();
     if (incShouldMirrorViewport)
         mpos.x = incGetMirrorX(mpos.x);
 
@@ -128,7 +128,7 @@ void incViewportPoll() {
 */
 float incGetMirrorX(float mposX) {
     ImVec2 pos;
-    igGetItemRectMin(&pos);
+    pos = igGetItemRectMin();
     return incGetMirrorX2(mposX - pos.x) + pos.x;
 }
 
@@ -546,9 +546,9 @@ void incViewportTransformHandle() {
 
     // Editing tip
     incBeginViewportToolArea("AREA_MODE", ImVec2(bounds.z, bounds.w));
-        igSetWindowFontScale(1.5);
+        igPushFont(null, igGetStyle().FontSizeBase * 1.5);
             incTextBordered(param ? "" : "");
-        igSetWindowFontScale(1);
+        igPopFont();
         incTooltip(param ? _("Editing armed parameter...") : _("Editing base transform..."));
     incEndViewportToolArea();
 
@@ -911,7 +911,7 @@ private {
             int uiWidth, uiHeight;
             inGetViewport(uiWidth, uiHeight);
             ImVec2 panelPos;
-            igGetItemRectMin(&panelPos);
+            panelPos = igGetItemRectMin();
 
             // Taking the canvas as the center point, calculate the relative position
             vec2 relatedMousePos = vec2(

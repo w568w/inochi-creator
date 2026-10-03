@@ -302,7 +302,7 @@ void incInspectorModelTRS(Node node) {
         // }
 
         ImVec2 avail;
-        igGetContentRegionAvail(&avail);
+        avail = igGetContentRegionAvail();
 
         float fontSize = 16;
 
@@ -1549,7 +1549,7 @@ void incInspectorDeformTRS(Node node, Parameter param, vec2u cursor) {
         float adjustSpeed = 1;
 
         ImVec2 avail;
-        igGetContentRegionAvail(&avail);
+        avail = igGetContentRegionAvail();
 
         float fontSize = 16;
 

@@ -101,7 +101,7 @@ protected:
         float availX = incAvailableSpace().x;
 
         // Sidebar
-        if (igBeginChild("SettingsSidebar", ImVec2(availX/3.5, -28), true)) {
+        if (igBeginChild("SettingsSidebar", ImVec2(availX/3.5, -28), ImGuiChildFlags.Borders)) {
             igPushTextWrapPos(128);
                 if (igSelectable(__("Atlassing"), pane == ExportOptionsPane.Atlassing)) {
                     pane = ExportOptionsPane.Atlassing;
@@ -118,7 +118,7 @@ protected:
         igSameLine(0, 4);
 
         // Contents
-        if (igBeginChild("SettingsContent", ImVec2(0, -28), true)) {
+        if (igBeginChild("SettingsContent", ImVec2(0, -28), ImGuiChildFlags.Borders)) {
             ImVec2 avail = incAvailableSpace();
 
             // Begins section, REMEMBER TO END IT
@@ -347,7 +347,7 @@ protected:
         igEndChild();
 
         // Bottom buttons
-        if (igBeginChild("SettingsButtons", ImVec2(0, 0), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
+        if (igBeginChild("SettingsButtons", ImVec2(0, 0), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)) {
             availX = incAvailableSpace().x;
             if (wasScaledForced) {
                 igPushTextWrapPos(availX-128);

@@ -27,7 +27,7 @@ void incToolbar() {
                 igPopStyleVar();
                 
                 ImVec2 pos;
-                igGetCursorPos(&pos);
+                pos = igGetCursorPos();
                 igSetCursorPos(ImVec2(pos.x-igGetStyle().WindowPadding.x, pos.y));
 
                 // Render toolbar
@@ -82,7 +82,7 @@ void incToolbar() {
 
                 // Render mode switch buttons
                 ImVec2 avail;
-                igGetContentRegionAvail(&avail);
+                avail = igGetContentRegionAvail();
                 debug(InExperimental) igDummy(ImVec2(avail.x-(32*3), 0));
                 else igDummy(ImVec2(avail.x-(32*2), 0));
                 igPushStyleVar(ImGuiStyleVar.FramePadding, ImVec2(0, 0));
@@ -155,7 +155,7 @@ bool incBeginInnerToolbar(float height, bool matchTitlebar=false, bool offset=tr
         igSetCursorPosY(offset ? igGetCursorPosY()-1 : igGetCursorPosY());
     }
     
-    bool visible = igBeginChild("###Toolbar", ImVec2(0, height), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
+    bool visible = igBeginChild("###Toolbar", ImVec2(0, height), ImGuiChildFlags.None, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
     if (visible) igSetCursorPosX(igGetCursorPosX()+style.FramePadding.x);
     return visible;
 }

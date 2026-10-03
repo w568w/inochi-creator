@@ -61,7 +61,7 @@ bool incDropdownButtonIcon(string idStr, string icon, ImVec2 size = ImVec2(-1, -
         ((held && hovered) || open) ? style.Colors[ImGuiCol.ButtonActive] : hovered ? 
             style.Colors[ImGuiCol.ButtonHovered] : 
             style.Colors[ImGuiCol.Button]);
-    igRenderNavHighlight(bb, id);
+    igRenderNavCursor(bb, id);
     igRenderFrame(bb.Min, bb.Max, bgCol, true, ctx.Style.FrameRounding);
     string s = "";
     ImVec2 ssize = incMeasureString(s);
@@ -111,7 +111,7 @@ bool incDropdownButton(string idStr, ImVec2 size = ImVec2(-1, -1), bool open=fal
         ((held && hovered) || open) ? style.Colors[ImGuiCol.ButtonActive] : hovered ? 
             style.Colors[ImGuiCol.ButtonHovered] : 
             style.Colors[ImGuiCol.Button]);
-    igRenderNavHighlight(bb, id);
+    igRenderNavCursor(bb, id);
     igRenderFrame(bb.Min, bb.Max, bgCol, true, ctx.Style.FrameRounding);
     const(string) s = "";
     ImVec2 ssize = incMeasureString(s);
@@ -148,7 +148,7 @@ bool incBeginDropdownMenu(string idStr, string icon="", ImVec2 cMin=ImVec2(192, 
     else if (pressed) igOpenPopup("DROPDOWN_CONTENT", ImGuiPopupFlags.MouseButtonLeft | ImGuiPopupFlags.NoOpenOverItems);
 
     ImVec2 pos;
-    igGetCursorScreenPos(&pos);
+    pos = igGetCursorScreenPos();
 
     // Clamp to outer window
     if (window) pos.x = clamp(pos.x, window.OuterRectClipped.Max.x, window.OuterRectClipped.Min.x-192);

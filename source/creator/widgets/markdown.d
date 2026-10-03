@@ -23,7 +23,7 @@
 */
 module creator.widgets.markdown;
 import creator.widgets.dummy;
-import bindbc.imgui;
+import i2d.imgui;
 
 struct MarkdownLinkCallbackData {
     string text;
@@ -40,7 +40,7 @@ struct MarkdownTooltipCallbackData {
 struct MarkdownImageData {
     bool                    isValid = false;                    // if true, will draw the image
     bool                    useLinkCallback = false;            // if true, linkCallback will be called when image is clicked
-    ImTextureID             userTextureId = null;                  // see ImGui::Image
+    ImTextureID             userTextureId = 0;                     // see ImGui::Image
     ImVec2                  size = ImVec2( 100.0f, 100.0f );    // see ImGui::Image
     ImVec2                  uv0 = ImVec2( 0, 0 );               // see ImGui::Image
     ImVec2                  uv1 = ImVec2( 1, 1 );               // see ImGui::Image
@@ -116,12 +116,12 @@ private {
                 else fmt = info.config.headingFormats[info.level-1];
         
                 if (start) {
-                    igSetWindowFontScale(fmt.scale);
+                    igPushFont(null, igGetStyle().FontSizeBase * fmt.scale);
                     // igNewLine();
                 } else {
                     if(fmt.separator) igSeparator();
                     // igNewLine();
-                    igSetWindowFontScale(1);
+                    igPopFont();
                 }
                 break;
             case MarkdownFormatType.Link:
@@ -198,9 +198,9 @@ private {
             const(char)* sliceStart = textSlice.ptr;
             const(char)* sliceEnd = textSlice.ptr+textSlice.length;
 
-            float scale = igGetIO().FontGlobalScale;
+            float size = igGetFontSize();
             float widthLeft = incAvailableSpace().x;
-            ImFont_CalcWordWrapPositionA(igGetFont(), scale, sliceStart, sliceEnd, widthLeft);
+            ImFont_CalcWordWrapPosition(igGetFont(), size, sliceStart, sliceEnd, widthLeft);
             igTextUnformatted(sliceStart, sliceEnd);
             
             // Handle indenting
@@ -218,7 +218,7 @@ private {
                 sliceEnd = textSlice.ptr+textSlice.length;
 
                 if (*sliceStart == ' ' ) ++sliceStart;
-                ImFont_CalcWordWrapPositionA(igGetFont(), scale, sliceStart, sliceEnd, widthLeft);
+                ImFont_CalcWordWrapPosition(igGetFont(), size, sliceStart, sliceEnd, widthLeft);
                 if (sliceStart == sliceEnd) sliceEnd++;
                 igTextUnformatted(sliceStart, sliceEnd);
             }
@@ -234,9 +234,9 @@ private {
             const(char)* sliceStart = textSlice.ptr;
             const(char)* sliceEnd = textSlice.ptr+textSlice.length;
 
-            float scale = igGetIO().FontGlobalScale;
+            float size = igGetFontSize();
             float widthLeft = incAvailableSpace().x;
-            ImFont_CalcWordWrapPositionA(igGetFont(), scale, sliceStart, sliceEnd, widthLeft);
+            ImFont_CalcWordWrapPosition(igGetFont(), size, sliceStart, sliceEnd, widthLeft);
             bool bHovered = renderLinkText(textSlice, link, markdown, cfg, linkHoverStart);
             if (indentToHere) {
                 float indentNeeded = incAvailableSpace().x - widthLeft;
@@ -252,7 +252,7 @@ private {
                 sliceEnd = textSlice.ptr+textSlice.length;
 
                 if (*sliceStart == ' ' ) ++sliceStart;
-                ImFont_CalcWordWrapPositionA(igGetFont(), scale, sliceStart, sliceEnd, widthLeft);
+                ImFont_CalcWordWrapPosition(igGetFont(), size, sliceStart, sliceEnd, widthLeft);
                 
                 if (sliceStart == sliceEnd) sliceEnd++;
                 
@@ -315,8 +315,8 @@ private {
 
     void incUnderLine(ImVec4 color) {
         ImVec2 min, max;
-        igGetItemRectMin(&min);
-        igGetItemRectMax(&max);
+        min = igGetItemRectMin();
+        max = igGetItemRectMax();
         min.y = max.y;
         ImDrawList_AddLine(igGetWindowDrawList(), min, max, igGetColorU32(color), 1);
     }
@@ -466,7 +466,11 @@ void incMarkdown(string markdown, ref MarkdownConfig cfg) {
                             ));
                             useLinkCallback = imageData.useLinkCallback;
                             if (imageData.isValid) {
-                                igImage(imageData.userTextureId, imageData.size, imageData.uv0, imageData.uv1, imageData.tint_col, imageData.border_col);
+                                igPushStyleColor(ImGuiCol.Border, imageData.border_col);
+                                igPushStyleVar(ImGuiStyleVar.ImageBorderSize, imageData.border_col.w > 0 ? 1.0f : 0.0f);
+                                igImageWithBg(ImTextureRef(null, imageData.userTextureId), imageData.size, imageData.uv0, imageData.uv1, ImVec4(0, 0, 0, 0), imageData.tint_col);
+                                igPopStyleVar();
+                                igPopStyleColor();
                                 drawnImage = true;
                             }
                         }

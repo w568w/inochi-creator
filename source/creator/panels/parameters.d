@@ -503,7 +503,7 @@ private {
             auto style = igGetStyle();
             ImS32 inactiveColor = igGetColorU32(style.Colors[ImGuiCol.TextDisabled]);
 
-            igBeginChild("BindingList", ImVec2(0, 256), false);
+            igBeginChild("BindingList", ImVec2(0, 256), ImGuiChildFlags.None);
                 igPushStyleVar(ImGuiStyleVar.CellPadding, ImVec2(4, 1));
                 igPushStyleVar(ImGuiStyleVar.IndentSpacing, 14);
 
@@ -858,7 +858,7 @@ void incParameterView(bool armedParam=false)(size_t idx, Parameter param, string
             igSameLine(0, 0);
 
             // Parameter Setting Buttons
-            childVisible = igBeginChild("###SETTING", ImVec2(24, reqSpace), false);
+            childVisible = igBeginChild("###SETTING", ImVec2(24, reqSpace), ImGuiChildFlags.None);
             if (childVisible || armedParam) {
                 if (incEditMode == EditMode.ModelEdit) {
                     if (igBeginPopup("###EditParam")) {
@@ -1165,7 +1165,7 @@ protected:
                                         ImVec2 swatchSize = ImVec2(24, 24);
 
                                         // COLOR SWATCHES
-                                        if (igColorButton("NONE", ImVec4(0, 0, 0, 0), flags | ImGuiColorEditFlags.AlphaPreview, swatchSize)) group.color = vec3(float.nan, float.nan, float.nan);
+                                        if (igColorButton("NONE", ImVec4(0, 0, 0, 0), flags, swatchSize)) group.color = vec3(float.nan, float.nan, float.nan);
                                         igSameLine(0, 4);
                                         if (igColorButton("RED", ImVec4(1, 0, 0, 1), flags, swatchSize)) group.color = vec3(0.25, 0.15, 0.15);
                                         igSameLine(0, 4);

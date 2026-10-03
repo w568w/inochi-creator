@@ -87,8 +87,8 @@ bool incInputText(string wId, float width, ref string buffer, ImGuiInputTextFlag
     }
 
     ImVec2 min, max;
-    igGetItemRectMin(&min);
-    igGetItemRectMax(&max);
+    min = igGetItemRectMin();
+    max = igGetItemRectMax();
 
     auto rect = SDL_Rect(
         cast(int)min.x+32, 
@@ -168,8 +168,8 @@ bool incInputText(string wId, string label, float width, ref string buffer, ImGu
     }
 
     ImVec2 min, max;
-    igGetItemRectMin(&min);
-    igGetItemRectMax(&max);
+    min = igGetItemRectMin();
+    max = igGetItemRectMax();
 
     auto rect = SDL_Rect(
         cast(int)min.x+32, 

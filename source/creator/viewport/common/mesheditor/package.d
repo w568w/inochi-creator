@@ -27,7 +27,7 @@ import creator;
 import inochi2d;
 import inochi2d.core.dbg;
 import bindbc.opengl;
-import bindbc.imgui;
+import i2d.imgui;
 import std.algorithm.mutation;
 import std.algorithm.searching;
 import std.stdio;
@@ -184,7 +184,7 @@ public:
     }
 
     void viewportTools() {
-        igSetWindowFontScale(1.30);
+        igPushFont(null, igGetStyle().FontSizeBase * 1.30);
             igPushStyleVar(ImGuiStyleVar.ItemSpacing, ImVec2(1, 1));
             igPushStyleVar(ImGuiStyleVar.FramePadding, ImVec2(8, 10));
                 auto info = incGetToolInfo();
@@ -195,7 +195,7 @@ public:
                 }
 
             igPopStyleVar(2);
-        igSetWindowFontScale(1);
+        igPopFont();
     }
 
     void displayToolOptions() {

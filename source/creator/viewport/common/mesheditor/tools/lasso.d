@@ -13,7 +13,7 @@ import creator.viewport.common.mesheditor.tools.select;
 import creator.viewport.common.mesheditor.operations;
 import creator.widgets;
 import i18n;
-import bindbc.imgui;
+import i2d.imgui;
 import inochi2d;
 import inochi2d.core.dbg;
 import std.algorithm.mutation : swap;
@@ -63,8 +63,8 @@ class LassoIO {
     bool cleanup = false;
 
     void update() {
-        addSelect = igIsKeyDown(ImGuiKey.ModShift);
-        removeSelect = igIsKeyDown(ImGuiKey.ModCtrl);
+        addSelect = igIsKeyDown(ImGuiKey.ImGuiMod_Shift);
+        removeSelect = igIsKeyDown(ImGuiKey.ImGuiMod_Ctrl);
         undo = igIsMouseClicked(ImGuiMouseButton.Right);
         cleanup = igIsKeyPressed(ImGuiKey.Escape);
     }

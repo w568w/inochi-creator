@@ -6,7 +6,7 @@
 */
 module creator.core.font;
 import creator.core;
-import bindbc.imgui;
+import i2d.imgui;
 import core.stdc.stdlib : malloc;
 import core.stdc.string : memcpy;
 import std.string;
@@ -25,7 +25,8 @@ private {
 
     void _incAddFontData(string name, ref ubyte[] data, float size = 14, const ImWchar* ranges = null, ImVec2 offset = ImVec2(0f, 0f)) {
         auto cfg = ImFontConfig_ImFontConfig();
-        cfg.FontBuilderFlags = 1 << 9;
+        scope(exit) ImFontConfig_destroy(cfg);
+        cfg.FontLoaderFlags = ImGuiFreeTypeLoaderFlags.Bitmap;
         cfg.FontDataOwnedByAtlas = false;
         cfg.MergeMode = atlas.Fonts.empty() ? false : true;
         cfg.GlyphOffset = offset;
@@ -121,10 +122,9 @@ void incInitFonts() {
             ].ptr, 
             ImVec2(0, 2)
         );
-    ImFontAtlas_Build(atlas);
 
     // Half size because the extra size is for scaling
-    igGetIO().FontGlobalScale = 0.5;
+    igGetStyle().FontScaleMain = 0.5;
 }
 
 /**

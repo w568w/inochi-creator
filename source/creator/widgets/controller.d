@@ -28,7 +28,7 @@ bool incController(string strId, ref Parameter param, ImVec2 size, bool forceSna
     ImGuiID id = igGetID(strId.ptr, strId.ptr+strId.length);
 
     ImVec2 avail;
-    igGetContentRegionAvail(&avail);
+    avail = igGetContentRegionAvail();
     if (size.x <= 0) size.x = avail.x-size.x;
     if (!param.isVec2) size.y = 32;
     else if (size.y <= 0) size.y = avail.y-size.y;
@@ -41,7 +41,7 @@ bool incController(string strId, ref Parameter param, ImVec2 size, bool forceSna
 
     ImVec2 mPos;
     ImVec2 vPos;
-    igGetCursorScreenPos(&vPos);
+    vPos = igGetCursorScreenPos();
     bool bModified = false;
     
     if (param.isVec2) {
@@ -75,7 +75,7 @@ bool incController(string strId, ref Parameter param, ImVec2 size, bool forceSna
                 held = true;
             }
             if ((grabParam !is null && grabParam == param.name) || (hovered && held)) {
-                igGetMousePos(&mPos);
+                mPos = igGetMousePos();
                 ImVec2 vCursorPos = ImVec2(mPos.x - oRect.Min.x, mPos.y - oRect.Min.y);
 
                 param.value = vec2(
@@ -239,7 +239,7 @@ bool incController(string strId, ref Parameter param, ImVec2 size, bool forceSna
                 held = true;
             }
             if ((grabParam !is null && grabParam == param.name) || (hovered && held)) {
-                igGetMousePos(&mPos);
+                mPos = igGetMousePos();
                 ImVec2 vCursorPos = ImVec2(mPos.x - oRect.Min.x, mPos.y - oRect.Min.y);
 
                 param.value.x = clamp(vCursorPos.x / (oRect.Max.x - oRect.Min.x) * sDeltaX + param.min.x, param.min.x, param.max.x);
@@ -361,7 +361,7 @@ void incControllerAxisDemo(string strId, ref Parameter param, ref EditableAxisPo
     ImGuiID id = igGetID(strId.ptr, strId.ptr+strId.length);
 
     ImVec2 avail;
-    igGetContentRegionAvail(&avail);
+    avail = igGetContentRegionAvail();
     if (size.x <= 0) size.x = avail.x-size.x;
     if (!param.isVec2) size.y = 32;
     else if (size.y <= 0) size.y = avail.y-size.y;
@@ -374,7 +374,7 @@ void incControllerAxisDemo(string strId, ref Parameter param, ref EditableAxisPo
 
     ImVec2 mPos;
     ImVec2 vPos;
-    igGetCursorScreenPos(&vPos);
+    vPos = igGetCursorScreenPos();
     
     if (param.isVec2) {
         float oRectOffsetX = 24;
@@ -563,7 +563,7 @@ void ImDrawList_AddLineDashed(ImDrawList* self, ImVec2 a, ImVec2 b, ImU32 col, f
             if (on) {
                 ImDrawList_PathLineTo(self, ImVec2(points[0].x-(dir.x*lineScale), points[0].y-(dir.y*lineScale)));
                 ImDrawList_PathLineTo(self, ImVec2(points[1].x+(dir.x*lineScale), points[1].y+(dir.y*lineScale)));
-                ImDrawList_PathStroke(self, col, ImDrawFlags.None, thickness);
+                ImDrawList_PathStroke(self, col, thickness);
             }
 
             on = !on;
