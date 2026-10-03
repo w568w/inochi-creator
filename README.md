@@ -1,11 +1,5 @@
 # Inochi Creator
 
-This fork updates the editor to Dear ImGui 1.92.9b and adds precise X/Y segment
-counts to Grid Vertex Tool. The matching D bindings and native sources are
-included under `vendor/`. See [MIGRATION.md](MIGRATION.md) for source versions,
-build instructions, validation and dependency updates. Download links below
-refer to upstream releases.
-
 ![Image of Inochi Creator](https://user-images.githubusercontent.com/7032834/194462402-74c4a3e0-50ca-4b50-8e8d-164d97371f5a.png)
 _Ada model by [ku-ini](https://twitter.com/duckmastah)_
 
