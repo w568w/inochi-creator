@@ -30,13 +30,13 @@ enum INC_BANNER_ARTIST_PAGE = "https://mastodon.art/@nighteden";
 /**
     URI for bug reports, for unofficial builds this SHOULD be changed.
 */
-enum INC_BUG_REPORT_URI = "https://github.com/Inochi2D/inochi-creator/issues/new?assignees=&labels=bug&template=bug-report.yml&title=%5BBUG%5D";
+enum INC_BUG_REPORT_URI = "https://github.com/w568w/inochi-creator/issues/new?assignees=&labels=bug&template=bug-report.yml&title=%5BBUG%5D";
 
 /**
     URI for feature requests, for the most part this doesn't need to be changed
     unless you're making a fork.
 */
-enum INC_FEATURE_REQ_URI = "https://github.com/Inochi2D/inochi-creator/issues/new?assignees=&labels=enhancement&template=feature_request.yml&title=%5BFeature+Request%5D";
+enum INC_FEATURE_REQ_URI = "https://github.com/w568w/inochi-creator/issues/new?assignees=&labels=enhancement&template=feature_request.yml&title=%5BFeature+Request%5D";
 
 /**
     URI to website for the project, change this if you fork the project.
