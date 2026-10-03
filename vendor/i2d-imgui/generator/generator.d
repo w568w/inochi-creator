@@ -96,6 +96,14 @@ shared static this()
         "int(__cdecl*)(void const*,void const*)" : "int function(const(void*), const(void*))",
         "ImBitArray<ImGuiKey_NamedKey_COUNT, -ImGuiKey_NamedKey_BEGIN>" : "ImBitArray!(ImGuiKey.NamedKey_COUNT,-ImGuiKey.NamedKey_BEGIN)",
         "ImFontBaked__32": "ImFontBaked, 32",
+        "_SDL_GameController**": "SDL_GameController**",
+        "ImVec2_c": "ImVec2",
+        "ImVec4_c": "ImVec4",
+        "ImColor_c": "ImColor",
+        "ImRect_c": "ImRect",
+        "ImVec2i_c": "ImVec2i",
+        "ImTextureRef_c": "ImTextureRef",
+        "const ImVec4_c*": "const(ImVec4)*",
     ];
 
     //alias ImBitArrayForNamedKeys = ImBitArray(ImGuiKey.NamedKey_COUNT,-ImGuiKey.NamedKey_BEGIN); ImBitArray<ImGuiKey_NamedKey_COUNT,-ImGuiKey_NamedKey_BEGIN>;
@@ -104,6 +112,8 @@ shared static this()
         "sizeof(float)" : "float.sizeof",
         "((void*)0)" : "null",
         "NULL" : "null",
+        "nullptr" : "null",
+        "-1.f" : "-1.0f",
         "FLT_MIN" : "float.min_normal",
         "FLT_MAX" : "float.max",
         "ImVec2(-FLT_MIN,0)" : "ImVec2(-float.min_normal,0)"
@@ -113,7 +123,7 @@ shared static this()
         "ImGui_ImplSDL2": BackendData(
             "ImGui_ImplSDL2", 
             "SDL2", 
-            "import bindbc.sdl;",
+            "import bindbc.sdl;\nenum ImGui_ImplSDL2_GamepadMode { AutoFirst, AutoAll, Manual }\nenum ImGui_ImplSDL2_MouseCaptureMode { Enabled, EnabledAfterDrag, Disabled }",
             "USE_SDL2"
         ),
         "ImGui_ImplGlfw" :BackendData(
@@ -131,7 +141,7 @@ shared static this()
         "ImGui_ImplOpenGL3" :BackendData(
             "ImplOpenGL3", 
             "OpenGL3", 
-            "",
+            "struct ImGui_ImplOpenGL3_RenderState { bool UseBindSampler; bool UseTexParameterFilter; uint CurrentSampler; uint CurrentTexParameterFilter; }",
             "USE_OpenGL3"
         ),
     ];
@@ -461,9 +471,10 @@ string loaderEnd = `
 
 const string imPool = q{
 struct TypeToReplace {
-    TemplatedTypeToReplace Buf;
+    ImVector!(TemplatedTypeToReplace) Buf;
     ImGuiStorage Map;
     ImPoolIdx FreeIdx;
+    ImPoolIdx AliveCount;
 }
 };
 
@@ -618,6 +629,8 @@ struct ImVector(tType) {
     int Capacity;
     tType* Data;
 
+    // Opaque element types expose storage only; their operations belong to C++.
+    static if (__traits(compiles, tType.sizeof)) {
     import core.stdc.string;
 
     // Important: never called automatically! always explicit.
@@ -813,6 +826,7 @@ struct ImVector(tType) {
         Size++;
         return Data + off; 
     }
+    }
 }
 };
 
@@ -935,7 +949,7 @@ struct ImStableVector(tType, size_t BLOCK_SIZE) {
 
 const string imChunkStream = q{
 struct TypeToReplace {
-    TemplatedTypeToReplace Buf;
+    ImVector!(char) Buf;
 }
 };
 
@@ -1013,6 +1027,8 @@ void write_typedefs(code_writer codeWriter, JSONValue typedefs, JSONValue struct
     foreach (string typedefName, JSONValue typeDefValue; typedefs) 
     {
         string originalTypeName = imgui_type_to_dlang(typeDefValue.str);
+        // Match IMGUI_WCHAR32 in deps/CMakeLists.txt.
+        if (typedefName == "ImWchar") originalTypeName = "ImWchar32";
 
         if (typedefName in structs_and_enums["enums"] ||
             (typedefName ~ "_") in structs_and_enums["enums"])
@@ -1049,13 +1065,13 @@ void write_typedefs(code_writer codeWriter, JSONValue typedefs, JSONValue struct
 
 void write_enums(code_writer codeWriter, JSONValue definitions)
 {
-    auto enum_comments = definitions["enum_comments"];
+    auto enum_comments = "enum_comments" in definitions;
     auto enums = definitions["enums"];
 
     foreach (string enumName, JSONValue enumValues; enums) 
     {
-        if (enumName in enum_comments) {
-            codeWriter.put_lines(enum_comments[enumName]["above"].str().replace("// ", "/// "));
+        if (enum_comments && enumName in *enum_comments) {
+            codeWriter.put_lines((*enum_comments)[enumName]["above"].str().replace("// ", "/// "));
         }
 
         string enumBaseType = "";
@@ -1118,12 +1134,12 @@ uint get_bitmask(uint accumulatedBits, uint numberOfBits)
 
 void write_structs(code_writer codeWriter, JSONValue struct_definitions, JSONValue function_definitions)
 {
-    auto struct_comments = struct_definitions["struct_comments"];
+    auto struct_comments = "struct_comments" in struct_definitions;
     auto structs = struct_definitions["structs"];
     foreach (string structName, JSONValue structMembers; structs) 
     {
-        if (structName in struct_comments) {
-            codeWriter.put_lines(struct_comments[structName]["above"].str().replace("// ", "/// "));
+        if (struct_comments && structName in *struct_comments) {
+            codeWriter.put_lines((*struct_comments)[structName]["above"].str().replace("// ", "/// "));
         }
 
         codeWriter.add_struct(structName);
@@ -1254,6 +1270,8 @@ void write_structs(code_writer codeWriter, JSONValue struct_definitions, JSONVal
                 ptrdiff_t position = std.string.lastIndexOf(objectName, '[');
 
                 string sizeExpression = objectName[position + 1 .. objectName.length - 1]; 
+                if (structName == "ImFont" && objectName.startsWith("Used8kPagesMap["))
+                    sizeExpression = "(0x10FFFF+1)/8192/8";
                 if (sizeExpression in gConvertedEnumValue)
                     sizeExpression = gConvertedEnumValue[sizeExpression];
 
@@ -1745,6 +1763,12 @@ void write_imgui_file(
     auto codeWriter = code_writer();
 
     codeWriter.put_lines("module i2d.imgui.bind.imgui;");
+    foreach (line; readText("deps/cimgui/imgui/imgui.h").splitLines) {
+        if (line.startsWith("#define IMGUI_VERSION ")) {
+            codeWriter.put_lines("enum IMGUI_VERSION = \"" ~ line.split('"')[1] ~ "\";");
+            break;
+        }
+    }
     codeWriter.line_break();
     codeWriter.put_lines("import std.algorithm;");
     codeWriter.line_break();
@@ -1775,7 +1799,7 @@ void write_imgui_file(
     //codeWriter.add_version("BindImGui_Static");
 
     auto infos = write_functions(codeWriter, definitions, false);
-    //infos ~= write_backend_functions(codeWriter, impl_definitions, false);
+    infos ~= write_backend_functions(codeWriter, impl_definitions, false);
 
     // NOTE: For some reason we merge this scope and following else into one line, hence why we're not using remove_scope here.    
     //codeWriter.remove_indent();

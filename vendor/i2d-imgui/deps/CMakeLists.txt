@@ -2,11 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(bindbc_imgui)
 
-include(cmake/PullSubmodules.cmake)
-
-PullSubmodules(${CMAKE_CURRENT_LIST_DIR}/.. submodulePrefixPath)
-
-message(STATUS "submodulePrefixPath: ${submodulePrefixPath}")
+set(cimgui_SUBMOD_DIR "${CMAKE_CURRENT_LIST_DIR}/cimgui")
 
 ####################
 # Setup
@@ -78,11 +74,18 @@ endif()
 option(BUILD_SHARED_LIBS "Build shared instead of static libraries." OFF)
 set(IMGUI_SDL "no" CACHE STRING "Build with SDL")
 set(IMGUI_OPENGL3 "no" CACHE STRING "Build with OpenGL3")
-set(IMGUI_FREETYPE "no" CACHE STRING "Build with freetype library")
+set(IMGUI_FREETYPE "yes" CACHE STRING "Build with freetype library")
 set(IMGUI_WCHAR32 ON)
 
 
 add_subdirectory(${cimgui_SUBMOD_DIR})
+
+find_package(SDL2 REQUIRED)
+target_sources(cimgui PRIVATE
+    ${cimgui_SUBMOD_DIR}/imgui/backends/imgui_impl_sdl2.cpp
+    ${cimgui_SUBMOD_DIR}/imgui/backends/imgui_impl_opengl3.cpp)
+target_include_directories(cimgui PRIVATE ${SDL2_INCLUDE_DIR})
+target_link_libraries(cimgui ${SDL2_LIBRARY} ${CMAKE_DL_LIBS})
 
 set_target_properties(cimgui PROPERTIES DEBUG_POSTFIX "")
 set_target_properties(cimgui PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${OutputDirectory})
