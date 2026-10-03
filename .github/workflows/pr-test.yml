@@ -6,7 +6,7 @@ name: Pull Request Test
 
 on:
   pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,7 +14,7 @@ permissions:
 jobs:
   build:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4.1.7
@@ -24,30 +24,28 @@ jobs:
   
     - name: "Get build dependencies"
       run: |
-        sudo apt install libsdl2-dev libfreetype6-dev
+        sudo apt-get update
+        sudo apt-get install -y cmake libsdl2-dev libfreetype6-dev
       
-    - name: "Clone dependencies & set versions"
+    - name: 'Check ImGui ABI and generated bindings'
+      working-directory: vendor/i2d-imgui
       run: |
-        git clone https://github.com/Inochi2D/i2d-imgui.git --recurse-submodules
-        git clone https://github.com/Inochi2D/inochi2d.git
-        dub add-local i2d-imgui/ "0.8.0"
-        dub add-local inochi2d/ "0.8.5"
+        bash tests/abi.sh
+        ldc2 -run generator/generator.d
+        git diff --exit-code -- source/i2d/imgui/bind/imgui.d
 
     - name: 'Build'
       run: |
-        # Build metadata (like version information and icons)
-        dub build --config=meta
-        
-        # Build the project, with its main file included, without unittests
-        dub build --compiler=ldc2 --build=release --config=linux-full
+        dub build --compiler=ldc2 --build=release --config=barebones
     
     - name: 'Test'
       run: |
-        dub test --compiler=ldc2 --config=linux-full
+        dub build --compiler=ldc2 --config=barebones --build=unittest --dest=build/unittest
+        build/unittest/out/inochi-creator --DRT-testmode=test-or-main
 
     - name: "Upload Artifacts"  
       if: success()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: inochi-creator
         path: out/inochi-creator
