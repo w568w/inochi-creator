@@ -44,10 +44,10 @@ void incBeginViewportToolArea(string id_str, ImGuiDir hdir, ImGuiDir vdir = ImGu
     // Depending on whether we're on the right or the left we want the tool area to display slightly offset
     // on the top left or top right, this ensures that.
     igSetCursorScreenPos(
-        pos? ImVec2(pos.x + win.InnerRect.Max.x, pos.y + win.InnerRect.Max.y):
+        pos? ImVec2(pos.x + win.InnerRect.Min.x, pos.y + win.InnerRect.Min.y):
         ImVec2(
-            hdir == ImGuiDir.Right ? win.InnerRect.Min.x - (paddingX+data.contentSize.x) : win.InnerRect.Max.x + paddingX,
-            vdir == ImGuiDir.Down ? win.InnerRect.Min.y - (paddingY+data.contentSize.y) : win.InnerRect.Max.y + paddingY,   
+            hdir == ImGuiDir.Right ? win.InnerRect.Max.x - (paddingX+data.contentSize.x) : win.InnerRect.Min.x + paddingX,
+            vdir == ImGuiDir.Down ? win.InnerRect.Max.y - (paddingY+data.contentSize.y) : win.InnerRect.Min.y + paddingY,
         )
     );
 
