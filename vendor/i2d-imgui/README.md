@@ -1,4 +1,10 @@
 # BindBC Imgui
+
+This directory is vendored by the Inochi Creator fork. Its matching cimgui
+and Dear ImGui sources are included as ordinary files. Use the repository's
+[migration guide](../../MIGRATION.md) for builds, generation and updates;
+the registry setup instructions below describe the original upstream package.
+
 D binding to CImgui with additional OpenGL and SDL backends
 
 # Adding to your project

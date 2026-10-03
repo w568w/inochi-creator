@@ -1,4 +1,11 @@
 # Inochi Creator
+
+This fork updates the editor to Dear ImGui 1.92.9b and adds precise X/Y segment
+counts to Grid Vertex Tool. The matching D bindings and native sources are
+included under `vendor/`. See [MIGRATION.md](MIGRATION.md) for source versions,
+build instructions, validation and dependency updates. Download links below
+refer to upstream releases.
+
 ![Image of Inochi Creator](https://user-images.githubusercontent.com/7032834/194462402-74c4a3e0-50ca-4b50-8e8d-164d97371f5a.png)
 _Ada model by [ku-ini](https://twitter.com/duckmastah)_
 
@@ -39,12 +46,23 @@ Links in `source/creator/config.d` should be updated to point to your package's 
 &nbsp;
 
 ## Building
-It's occasionally the case that our dependencies are out of sync with dub, so it's somewhat recommended if you're building from source to clone the tip of `main` and `dub add-local . "<version matching inochi-creator dep>"` any of our forked dependencies (i18n-d, psd-d, bindbc-imgui, facetrack-d, inmath, inochi2d). This will generally keep you up to date with what we're doing, and it's how the primary contributors work. Ideally we'd have a script to help set this up, but currently we do it manually, PRs welcome :)
+The ImGui dependency is a local Dub package at `vendor/i2d-imgui`, with cimgui
+and Dear ImGui included as Git subtrees. A normal clone or source archive
+contains all three; no recursive submodule checkout or `dub add-local` is
+needed. Dub downloads the remaining D dependencies when building.
 
-Because our project has dependencies on C++ through bindbc-imgui, and because there's no common way to get imgui binaries across platforms, we require a C++ toolchain as well as a few extra dependencies installed. These will be listed in their respective platform sections below.  
+Building requires a C++ toolchain for the vendored ImGui sources, plus the
+development libraries listed below. Linux is the verified target of this
+fork; the inherited Windows and macOS configurations have not been tested.
 Currently you **have** to _recursively_ clone bindbc-imgui from git and set its version to `0.7.0`, otherwise the build will fail.
 
-Once the below dependencies are met, building and running inochi-creator should be as simple as calling `dub` within this repo.
+On Linux, build the unbranded configuration and run from its output directory:
+
+```sh
+dub build --compiler=ldc2 --config=barebones --build=release
+cd out
+./inochi-creator
+```
 
 ### Windows
 #### Dependencies
@@ -66,4 +84,4 @@ Once the below dependencies are met, building and running inochi-creator should 
 
 This project is funded through [NGI0 Entrust](https://nlnet.nl/entrust), a fund established by [NLnet](https://nlnet.nl) with financial support from the European Commission's [Next Generation Internet](https://ngi.eu) program. Learn more at the [NLnet project page](https://nlnet.nl/project/Inochi2D).
 
-[<img src="https://nlnet.nl/logo/banner.svg" alt="NLnet foundation logo" width="20%" />](https://nlnet.nl)  
+[<img src="https://nlnet.nl/logo/banner.svg" alt="NLnet foundation logo" width="20%" />](https://nlnet.nl)
