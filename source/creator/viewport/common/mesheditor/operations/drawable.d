@@ -488,7 +488,8 @@ protected:
             return;
         deformation = drawable.deformation.dup;
         auto param = incArmedParameter();
-        auto binding = cast(DeformationParameterBinding)(param? param.getBinding(drawable, "deform"): null);
+        DeformationParameterBinding binding;
+        if (param) binding = cast(DeformationParameterBinding)param.getBinding(drawable, "deform");
         if (binding is null) {
             deformation = drawable.deformation.dup;
             

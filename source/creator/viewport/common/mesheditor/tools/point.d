@@ -483,7 +483,8 @@ class PointToolInfo : ToolInfoBase!PointTool {
         if (deformOnly) {
 
         } else {
-            auto pointTool = cast(PointTool)(editors.length == 0 ? null: editors.values()[0].getTool());
+            PointTool pointTool;
+            if (editors.length != 0) pointTool = cast(PointTool)editors.values()[0].getTool();
             igBeginGroup();
                 if (incButtonColored("", ImVec2(0, 0), (pointTool !is null && !pointTool.isAutoConnect())? ImVec4(0.6, 0.6, 0.6, 1) : ImVec4.init)) {
                 foreach (e; editors) {
